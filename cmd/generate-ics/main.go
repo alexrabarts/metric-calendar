@@ -426,8 +426,8 @@ func generateFeed(cfg feedConfig, outDir string, startDate, endDate time.Time, d
 	b.WriteString("VERSION:2.0\r\n")
 	b.WriteString("PRODID:-//Metric Calendar//metricweek.com//EN\r\n")
 	b.WriteString(foldLine("X-WR-CALNAME:"+cfg.calName) + "\r\n")
+	b.WriteString(foldLine("NAME:"+cfg.calName) + "\r\n")
 	b.WriteString("CALSCALE:GREGORIAN\r\n")
-	b.WriteString("METHOD:PUBLISH\r\n")
 	for _, e := range events {
 		b.WriteString(e)
 	}

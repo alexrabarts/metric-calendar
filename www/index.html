@@ -153,39 +153,62 @@
           <!-- Date Converter -->
           <section class="bg-white rounded-2xl shadow-lg p-4 sm:p-5 mb-6 animate-in" style="animation-delay:0.06s">
             <h2 class="font-display text-lg font-bold text-stone-800 mb-3 text-center">Date Converter</h2>
-            <div class="flex justify-center mb-3">
-              <button id="mode-g2m" class="text-xs font-semibold px-3 py-1 rounded-l-lg border border-stone-300 bg-stone-800 text-white">G &rarr; M</button>
-              <button id="mode-m2g" class="text-xs font-semibold px-3 py-1 rounded-r-lg border border-stone-300 border-l-0 bg-white text-stone-600 hover:bg-stone-50">M &rarr; G</button>
+
+            <!-- Tab bar -->
+            <div class="flex mb-3 bg-stone-100 rounded-lg p-0.5">
+              <button id="tab-g2m" class="flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors bg-stone-800 text-white">Gregorian &rarr; Metric</button>
+              <button id="tab-m2g" class="flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors text-stone-500">Metric &rarr; Gregorian</button>
             </div>
-            <div id="converter-g2m">
+
+            <!-- Panel: Gregorian to Metric -->
+            <div id="panel-g2m">
               <div class="flex flex-col gap-2 items-center">
+                <label for="converter-input" class="text-sm text-stone-500">Gregorian date:</label>
                 <input type="date" id="converter-input" class="border border-stone-300 rounded-lg px-3 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400 w-full max-w-[200px]">
               </div>
               <div id="converter-result" class="mt-3 text-center"></div>
             </div>
-            <div id="converter-m2g" class="hidden">
+
+            <!-- Panel: Metric to Gregorian -->
+            <div id="panel-m2g" style="display:none">
               <div class="flex flex-col gap-2 items-center">
-                <div class="flex gap-1.5 items-center">
-                  <select id="metric-month" class="border border-stone-300 rounded-lg px-2 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400">
-                    <option value="1">Unil</option>
-                    <option value="2">Duil</option>
-                    <option value="3">Tril</option>
-                    <option value="4">Quadril</option>
-                    <option value="5">Quintil</option>
-                    <option value="6">Sextil</option>
-                    <option value="7">Septil</option>
-                    <option value="8">Octil</option>
-                    <option value="9">Novil</option>
-                    <option value="10">Decil</option>
-                    <option value="11">Undecil</option>
-                    <option value="12">Duodecil</option>
-                  </select>
-                  <input type="number" id="metric-day" placeholder="Day" min="1" max="30" class="border border-stone-300 rounded-lg px-2 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400 w-16 text-center">
-                  <span class="text-xs text-stone-400">Y:</span>
-                  <input type="number" id="metric-year" placeholder="Year" class="border border-stone-300 rounded-lg px-2 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400 w-20 text-center">
+                <label for="m2g-year" class="text-sm text-stone-500">Year:</label>
+                <input type="number" id="m2g-year" min="-100" max="500" class="border border-stone-300 rounded-lg px-3 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400 w-full max-w-[200px] text-center">
+
+                <label for="m2g-period" class="text-sm text-stone-500">Period:</label>
+                <select id="m2g-period" class="border border-stone-300 rounded-lg px-3 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400 w-full max-w-[200px]">
+                  <optgroup label="The Turning">
+                    <option value="turning-0">Vigil</option>
+                    <option value="turning-1">Balance</option>
+                    <option value="turning-2">Dawn</option>
+                  </optgroup>
+                  <optgroup label="Months">
+                    <option value="month-1" selected>Unil (1)</option>
+                    <option value="month-2">Duil (2)</option>
+                    <option value="month-3">Tril (3)</option>
+                    <option value="month-4">Quadril (4)</option>
+                    <option value="month-5">Quintil (5)</option>
+                    <option value="month-6">Sextil (6)</option>
+                    <option value="month-7">Septil (7)</option>
+                    <option value="month-8">Octil (8)</option>
+                    <option value="month-9">Novil (9)</option>
+                    <option value="month-10">Decil (10)</option>
+                    <option value="month-11">Undecil (11)</option>
+                    <option value="month-12">Duodecil (12)</option>
+                  </optgroup>
+                  <optgroup label="Yule">
+                    <option value="yule-0">Yule Eve</option>
+                    <option value="yule-1" id="m2g-yule-solstice">Midwinter</option>
+                    <option value="yule-2" id="m2g-kindling">Kindling</option>
+                  </optgroup>
+                </select>
+
+                <div id="m2g-day-row" class="flex flex-col gap-2 items-center w-full">
+                  <label for="m2g-day" class="text-sm text-stone-500">Day:</label>
+                  <input type="number" id="m2g-day" min="1" max="30" value="1" class="border border-stone-300 rounded-lg px-3 py-1.5 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400 w-full max-w-[200px] text-center">
                 </div>
               </div>
-              <div id="converter-result-m2g" class="mt-3 text-center"></div>
+              <div id="m2g-result" class="mt-3 text-center"></div>
             </div>
           </section>
         </div>
@@ -296,7 +319,7 @@
       </div>
       <div class="flex items-center gap-2">
         <div class="w-3 h-3 bg-[#d4a017] rounded"></div>
-        <span class="text-xs text-stone-500">Midsummer</span>
+        <span id="legend-solstice" class="text-xs text-stone-500">Midsummer</span>
       </div>
       <div class="flex items-center gap-2">
         <div class="w-3 h-3 bg-[#7c8db5] rounded"></div>
@@ -321,7 +344,7 @@
     <div id="season-2"></div>
 
     <!-- Yule (JS-generated) -->
-    <div id="yule"></div>
+    <div id="yule-section"></div>
 
     <div id="season-3"></div>
 
@@ -422,7 +445,7 @@
         <p class="text-stone-400 font-display italic">"The Rest" carries a double meaning: restoration and stillness, but also "the remainder." It doesn't pick a side between doing and not-doing.</p>
         <div class="border-t border-stone-700 my-4"></div>
         <p>Nothing here needed inventing. Ten fingers, twelve months of thirty days, seasons that turn with the earth. The patterns were already there.</p>
-        <p>360 regular days. The same number as degrees in a circle. Map each day to a degree and the geometry reveals itself. Hexagonal symmetry, golden spirals, perfect fifths - all landing on calendar days without being placed there.</p>
+        <p>360 regular days. The same number as degrees in a circle. The golden angle, 137.5 degrees, falls on day 138: <span class="text-[#d4bc7a] font-semibold">The Spiral</span>. The same angle that spirals sunflower seeds and arranges leaves for light, woven into the rhythm of the year.</p>
         <p>Time belongs to everyone. This isn't a product or a movement. It's just a way of counting that finally makes sense.</p>
         <p>Year zero is 1970. The Unix epoch. The machines that might give us all this free time earn a spot on the calendar too.</p>
         <p class="text-stone-400 font-display italic">Ready for whenever work stops defining our days.</p>
@@ -457,8 +480,8 @@
     };
 
     var TURNING_DAYS = ['Vigil', 'Balance', 'Dawn'];
-    var YULE_DAY_NAMES = {
-      north: ['Yule Eve', 'Solstice', 'Kindling'],
+    var YULE_DAYS = {
+      north: ['Yule Eve', 'Midwinter', 'Kindling'],
       south: ['Yule Eve', 'Midsummer', 'Kindling']
     };
 
@@ -503,7 +526,7 @@
         gregDate: 'G: December 18\u201319 (20 in leap years)',
         days: [
           { name: 'Yule Eve', desc: 'The darkness gathers' },
-          { name: 'Solstice', desc: 'Stillness at the heart of the year' },
+          { name: 'Midwinter', desc: 'Stillness at the heart of the year' },
           { name: 'Kindling', desc: 'Light returns, celebration' }
         ]
       },
@@ -524,10 +547,16 @@
       }
     };
 
+    var SEASON_COLORS = [
+      { cardBg: 'bg-[#ecf5ee]', cardBorder: 'border-[#c8ddc9]', headerColor: 'text-[#2d6b45]' },
+      { cardBg: 'bg-[#fdf6e3]', cardBorder: 'border-[#e8d5a0]', headerColor: 'text-[#a07d1c]' },
+      { cardBg: 'bg-[#fdf0e6]', cardBorder: 'border-[#e0c4a8]', headerColor: 'text-[#9a4a2a]' },
+      { cardBg: 'bg-[#eef0f8]', cardBorder: 'border-[#c0c4db]', headerColor: 'text-[#3b4899]' }
+    ];
+
     var SEASONS = [
       {
         range: 'Months 1\u20133',
-        cardBg: 'bg-[#ecf5ee]', cardBorder: 'border-[#c8ddc9]', headerColor: 'text-[#2d6b45]',
         months: [
           { name: 'Unil', dates: 'G: Mar 23 \u2013 Apr 21', weeks: 'Weeks 1\u20133', monthIndex: 1 },
           { name: 'Duil', dates: 'G: Apr 22 \u2013 May 21', weeks: 'Weeks 4\u20136', monthIndex: 2, sextant: 30, note: '\u{1F9ED}\u00a0The\u00a0Sextant' },
@@ -536,7 +565,6 @@
       },
       {
         range: 'Months 4\u20136',
-        cardBg: 'bg-[#fdf6e3]', cardBorder: 'border-[#e8d5a0]', headerColor: 'text-[#a07d1c]',
         months: [
           { name: 'Quadril', dates: 'G: Jun 21 \u2013 Jul 20', weeks: 'Weeks 10\u201312', midsummer: 1, trine: 30, note: '\u2600\uFE0F\u00a0Midsummer \u00b7 \u{1F53A}\u00a0The\u00a0Trine', monthIndex: 4 },
           { name: 'Quintil', dates: 'G: Jul 21 \u2013 Aug 19', weeks: 'Weeks 13\u201315', spiral: 18, convergence: 24, note: '\u{1F300}\u00a0The\u00a0Spiral \u00b7 \u{1F500}\u00a0Convergence', monthIndex: 5 },
@@ -545,7 +573,6 @@
       },
       {
         range: 'Months 7\u20139',
-        cardBg: 'bg-[#fdf0e6]', cardBorder: 'border-[#e0c4a8]', headerColor: 'text-[#9a4a2a]',
         months: [
           { name: 'Septil', dates: 'G: Sep 19 \u2013 Oct 18', weeks: 'Weeks 19\u201321', monthIndex: 7 },
           { name: 'Octil', dates: 'G: Oct 19 \u2013 Nov 17', weeks: 'Weeks 22\u201324', monthIndex: 8, mask: 13, harmony: 30, note: '\u{1F3AD}\u00a0The\u00a0Mask \u00b7 \u{1F3B5}\u00a0Harmony' },
@@ -554,7 +581,6 @@
       },
       {
         range: 'Months 10\u201312',
-        cardBg: 'bg-[#eef0f8]', cardBorder: 'border-[#c0c4db]', headerColor: 'text-[#3b4899]',
         months: [
           { name: 'Decil', dates: 'G: Dec 20 \u2013 Jan 18', weeks: 'Weeks 28\u201330', monthIndex: 10 },
           { name: 'Undecil', dates: 'G: Jan 19 \u2013 Feb 17', weeks: 'Weeks 31\u201333', monthIndex: 11 },
@@ -574,6 +600,18 @@
 
     function getSeasonIcon(index) {
       return SEASON_ICONS[hemisphere][index];
+    }
+
+    function getSeasonColors(index) {
+      return hemisphere === 'south' ? SEASON_COLORS[(index + 2) % 4] : SEASON_COLORS[index];
+    }
+
+    function getSolsticeLabel() {
+      return hemisphere === 'north' ? 'Midsummer' : 'Midwinter';
+    }
+
+    function getYuleSolsticeLabel() {
+      return hemisphere === 'north' ? 'Midwinter' : 'Midsummer';
     }
 
     // ==========================================
@@ -649,7 +687,7 @@
       // Yule: adjusted days 271 to 270+yuleDays
       else if (adjusted <= 270 + yuleDays) {
         result.isYule = true;
-        result.specialDay = YULE_DAY_NAMES[hemisphere][adjusted - 271];
+        result.specialDay = YULE_DAYS[hemisphere][adjusted - 271];
         return result;
       }
       // Months 10-12: after Yule
@@ -684,6 +722,47 @@
       return mc.year + '.' + m + '.' + d;
     }
 
+    function metricToGregorian(metricYear, periodType, periodValue, dayOfMonth) {
+      if (isNaN(metricYear) || metricYear < -100 || metricYear > 500) {
+        return { valid: false, error: 'Year out of range' };
+      }
+
+      var equinoxYear = metricYear + 1970;
+      var leap = isGregorianLeapYear(metricYear + 1971);
+      var yuleDays = leap ? 3 : 2;
+      var offset;
+
+      if (periodType === 'turning') {
+        offset = periodValue;
+      } else if (periodType === 'month') {
+        var m = periodValue;
+        var d = dayOfMonth;
+        if (isNaN(d) || d < 1 || d > 30) return { valid: false, error: 'Day must be 1\u201330' };
+        if (m < 1 || m > 12) return { valid: false, error: 'Invalid month' };
+        if (m <= 9) {
+          offset = 3 + (m - 1) * 30 + (d - 1);
+        } else {
+          offset = 3 + 270 + yuleDays + (m - 10) * 30 + (d - 1);
+        }
+      } else if (periodType === 'yule') {
+        if (periodValue === 2 && !leap) {
+          return { valid: false, error: 'Kindling only occurs in leap years' };
+        }
+        offset = 3 + 270 + periodValue;
+      } else {
+        return { valid: false, error: 'Unknown period type' };
+      }
+
+      var gregDate = new Date(Date.UTC(equinoxYear, 2, 20 + offset));
+      return {
+        valid: true,
+        year: gregDate.getUTCFullYear(),
+        month: gregDate.getUTCMonth() + 1,
+        day: gregDate.getUTCDate(),
+        isLeapYear: leap
+      };
+    }
+
     // ==========================================
     // Today
     // ==========================================
@@ -691,6 +770,7 @@
     var todayMetric = gregorianToMetric(now.getFullYear(), now.getMonth() + 1, now.getDate());
 
     function renderToday() {
+      todayMetric = gregorianToMetric(now.getFullYear(), now.getMonth() + 1, now.getDate());
       if (!todayMetric.isTurning && !todayMetric.isYule) {
         todayMetric.seasonName = getSeasonName(todayMetric.seasonIndex);
       }
@@ -715,7 +795,7 @@
         html += '<div class="text-stone-300 text-sm mb-2">' + todayMetric.dayName + ' \u00b7 ' + todayMetric.seasonName + '</div>';
         var tags = [];
         if (todayMetric.isRest) tags.push('<span class="inline-block bg-[#c2685a]/30 text-[#e8a89a] text-xs px-2 py-0.5 rounded-full">The Rest</span>');
-        if (todayMetric.isMidsummer) tags.push('<span class="inline-block bg-amber-500/30 text-amber-200 text-xs px-2 py-0.5 rounded-full">Midsummer</span>');
+        if (todayMetric.isMidsummer) tags.push('<span class="inline-block bg-amber-500/30 text-amber-200 text-xs px-2 py-0.5 rounded-full">' + getSolsticeLabel() + '</span>');
         if (todayMetric.isSpiral) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F300} The Spiral</span>');
         if (todayMetric.isSextant) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F9ED} The Sextant</span>');
         if (todayMetric.isTrine) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F53A} The Trine</span>');
@@ -768,7 +848,7 @@
 
       var titles = [];
       if (isToday) titles.push('Today');
-      if (mid) titles.push('Midsummer');
+      if (mid) titles.push(getSolsticeLabel());
       if (spi) titles.push('The Spiral');
       if (sex) titles.push('The Sextant');
       if (tri) titles.push('The Trine');
@@ -784,7 +864,7 @@
     window._hoverDay = function(monthIndex, day) {
       var el = document.getElementById('month-dates-' + monthIndex);
       if (!el) return;
-      var gregDate = metricToGregorian(todayMetric.year, monthIndex, day);
+      var gregDate = metricDayToDate(todayMetric.year, monthIndex, day);
       var formatted = gregDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
       el.textContent = 'G: ' + formatted;
     };
@@ -795,7 +875,7 @@
       el.textContent = el.dataset.original;
     };
 
-    function monthCard(month, season) {
+    function monthCard(month, colors) {
       var headers = DAY_ABBRS.map(function(d, i) {
         var color = i >= 7 ? 'text-[#c2685a]' : 'text-stone-400';
         return '<div class="text-center py-0.5 ' + color + '">' + d + '</div>';
@@ -811,11 +891,13 @@
       }
 
       var footer = month.weeks;
-      if (month.note) {
-        footer += ' \u00b7 <span class="' + season.headerColor + '">' + month.note + '</span>';
+      if (month.midsummer) {
+        footer += ' \u00b7 <span class="' + colors.headerColor + '">\u2600\uFE0F ' + getSolsticeLabel() + '</span>';
+      } else if (month.note) {
+        footer += ' \u00b7 <span class="' + colors.headerColor + '">' + month.note + '</span>';
       }
 
-      return '<div class="' + season.cardBg + ' rounded-xl shadow-md p-2 sm:p-3 border ' + season.cardBorder + '">' +
+      return '<div class="' + colors.cardBg + ' rounded-xl shadow-md p-2 sm:p-3 border ' + colors.cardBorder + '">' +
         '<div class="flex justify-between items-center mb-2">' +
           '<h4 class="font-display font-bold text-base sm:text-lg text-stone-800">' + month.name + '</h4>' +
           '<span id="month-dates-' + month.monthIndex + '" data-original="' + month.dates + '" class="text-[10px] sm:text-xs text-stone-400">' + month.dates + '</span>' +
@@ -829,13 +911,14 @@
     function seasonSection(season, index) {
       var name = getSeasonName(index);
       var icon = getSeasonIcon(index);
+      var colors = getSeasonColors(index);
 
       var cards = season.months.map(function(m) {
-        return monthCard(m, season);
+        return monthCard(m, colors);
       }).join('');
 
       return '<div class="mb-6">' +
-        '<h3 class="font-bold ' + season.headerColor + ' mb-3">' +
+        '<h3 class="font-bold ' + colors.headerColor + ' mb-3">' +
           icon + ' ' + name + ' \u2014 ' + season.range +
         '</h3>' +
         '<div class="grid grid-cols-1 md:grid-cols-3 gap-3">' + cards + '</div>' +
@@ -867,7 +950,7 @@
     }
 
     function renderYule() {
-      var el = document.getElementById('yule');
+      var el = document.getElementById('yule-section');
       if (!el) return;
       var c = YULE_CONFIG[hemisphere];
       var cards = c.days.map(function(day, i) {
@@ -887,10 +970,15 @@
       '</section>';
     }
 
+    function updateLegend() {
+      var el = document.getElementById('legend-solstice');
+      if (el) el.textContent = getSolsticeLabel();
+    }
+
     // ==========================================
     // Date Conversion: Metric → Gregorian
     // ==========================================
-    function metricToGregorian(metricYear, metricMonth, metricDay) {
+    function metricDayToDate(metricYear, metricMonth, metricDay) {
       var gregYear = metricYear + 1970;
       var equinox = new Date(Date.UTC(gregYear, 2, 20)); // March 20
 
@@ -950,7 +1038,7 @@
         html += '<div class="text-sm text-stone-500">' + mc.dayName + ' \u00b7 ' + mc.seasonName + '</div>';
         var tags = [];
         if (mc.isRest) tags.push('<span class="bg-[#fdf0ee] text-[#c2685a] text-xs px-2 py-0.5 rounded-full">The Rest</span>');
-        if (mc.isMidsummer) tags.push('<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">Midsummer</span>');
+        if (mc.isMidsummer) tags.push('<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">' + getSolsticeLabel() + '</span>');
         if (mc.isSpiral) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F300} The Spiral</span>');
         if (mc.isSextant) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F9ED} The Sextant</span>');
         if (mc.isTrine) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F53A} The Trine</span>');
@@ -965,51 +1053,99 @@
       el.innerHTML = html;
     }
 
-    // ==========================================
-    // Date Converter: M → G
-    // ==========================================
+    var GREG_MONTH_NAMES = ['January','February','March','April','May','June',
+      'July','August','September','October','November','December'];
+    var GREG_DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+    function switchConverterTab(tab) {
+      var g2mPanel = document.getElementById('panel-g2m');
+      var m2gPanel = document.getElementById('panel-m2g');
+      var g2mTab = document.getElementById('tab-g2m');
+      var m2gTab = document.getElementById('tab-m2g');
+      if (tab === 'g2m') {
+        g2mPanel.style.display = '';
+        m2gPanel.style.display = 'none';
+        g2mTab.className = 'flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors bg-stone-800 text-white';
+        m2gTab.className = 'flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors text-stone-500';
+      } else {
+        g2mPanel.style.display = 'none';
+        m2gPanel.style.display = '';
+        m2gTab.className = 'flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors bg-stone-800 text-white';
+        g2mTab.className = 'flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors text-stone-500';
+      }
+    }
+
+    function updateM2GDayVisibility() {
+      var periodInput = document.getElementById('m2g-period');
+      var dayRow = document.getElementById('m2g-day-row');
+      if (!periodInput || !dayRow) return;
+      var periodType = periodInput.value.split('-')[0];
+      dayRow.style.display = periodType === 'month' ? '' : 'none';
+    }
+
+    function updateKindlingAvailability() {
+      var yearInput = document.getElementById('m2g-year');
+      var kindling = document.getElementById('m2g-kindling');
+      if (!yearInput || !kindling) return;
+      var metricYear = parseInt(yearInput.value, 10);
+      if (isNaN(metricYear)) {
+        kindling.disabled = true;
+        kindling.textContent = 'Kindling';
+        return;
+      }
+      var leap = isGregorianLeapYear(metricYear + 1971);
+      kindling.disabled = !leap;
+      kindling.textContent = leap ? 'Kindling' : 'Kindling (no leap)';
+      if (!leap && kindling.selected) {
+        var period = document.getElementById('m2g-period');
+        if (period) period.value = 'yule-0';
+      }
+    }
+
     function renderM2GResult() {
-      var el = document.getElementById('converter-result-m2g');
+      var el = document.getElementById('m2g-result');
       if (!el) return;
 
-      var yearInput = document.getElementById('metric-year');
-      var monthInput = document.getElementById('metric-month');
-      var dayInput = document.getElementById('metric-day');
+      var yearInput = document.getElementById('m2g-year');
+      var periodInput = document.getElementById('m2g-period');
+      var dayInput = document.getElementById('m2g-day');
 
-      var mYear = parseInt(yearInput.value, 10);
-      var mMonth = parseInt(monthInput.value, 10);
-      var mDay = parseInt(dayInput.value, 10);
-
-      if (isNaN(mYear) || isNaN(mMonth) || isNaN(mDay) || mDay < 1 || mDay > 30) {
+      var metricYear = parseInt(yearInput.value, 10);
+      if (isNaN(metricYear)) {
         el.innerHTML = '';
         return;
       }
 
-      var gregDate = metricToGregorian(mYear, mMonth, mDay);
-      var mc = gregorianToMetric(gregDate.getUTCFullYear(), gregDate.getUTCMonth() + 1, gregDate.getUTCDate());
+      var periodVal = periodInput.value;
+      var parts = periodVal.split('-');
+      var periodType = parts[0];
+      var periodIndex = parseInt(parts[1], 10);
+      var dayOfMonth = parseInt(dayInput.value, 10) || 1;
 
-      if (!mc.isTurning && !mc.isYule) {
-        mc.seasonName = getSeasonName(mc.seasonIndex);
+      var result = metricToGregorian(metricYear, periodType, periodIndex, dayOfMonth);
+
+      if (!result.valid) {
+        el.innerHTML = '<div class="bg-red-50 rounded-xl p-3 border border-red-200 text-sm text-red-600">' + result.error + '</div>';
+        return;
       }
 
-      var gregStr = gregDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+      var gregStr = GREG_MONTH_NAMES[result.month - 1] + ' ' + result.day + ', ' + result.year;
+      var dateObj = new Date(Date.UTC(result.year, result.month - 1, result.day));
+      var dayOfWeek = GREG_DAY_NAMES[dateObj.getUTCDay()];
+
+      var isoMonth = result.month < 10 ? '0' + result.month : '' + result.month;
+      var isoDay = result.day < 10 ? '0' + result.day : '' + result.day;
+      var isoStr = result.year + '-' + isoMonth + '-' + isoDay;
 
       var html = '<div class="bg-stone-50 rounded-xl p-4 border border-stone-200">';
       html += '<div class="font-display text-xl font-bold text-stone-800">' + gregStr + '</div>';
-      html += '<div class="text-sm text-stone-500">' + mc.dayName + ' \u00b7 ' + getSeasonName(mc.seasonIndex) + '</div>';
-
-      var tags = [];
-      if (mc.isRest) tags.push('<span class="bg-[#fdf0ee] text-[#c2685a] text-xs px-2 py-0.5 rounded-full">The Rest</span>');
-      if (mc.isMidsummer) tags.push('<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">Midsummer</span>');
-      if (mc.isSpiral) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F300} The Spiral</span>');
-      if (mc.isSextant) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F9ED} The Sextant</span>');
-      if (mc.isTrine) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F53A} The Trine</span>');
-      if (mc.isConvergence) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F500} Convergence</span>');
-      if (mc.isMeridian) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F317} The Meridian</span>');
-      if (mc.isHarmony) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3B5} Harmony</span>');
-      if (mc.isMask) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3AD} The Mask</span>');
-      if (tags.length) html += '<div class="mt-2">' + tags.join(' ') + '</div>';
+      html += '<div class="text-sm text-stone-500">' + dayOfWeek + '</div>';
+      if (result.isLeapYear) {
+        html += '<div class="text-xs text-amber-600 mt-1">Metric leap year (3-day Yule)</div>';
+      }
+      html += '<div class="text-stone-400 text-xs mt-1 font-mono">' + isoStr + '</div>';
       html += '</div>';
+
       el.innerHTML = html;
     }
 
@@ -1066,6 +1202,7 @@
 
       updateHemisphereLabels();
       updateSubscribeLinks();
+      updateLegend();
 
       toggle.addEventListener('change', function() {
         hemisphere = this.checked ? 'south' : 'north';
@@ -1074,11 +1211,14 @@
         updateHemisphereLabels();
         updateSubscribeLinks();
         renderTurning();
+        updateLegend();
         renderSeasons();
         renderYule();
         renderToday();
         var input = document.getElementById('converter-input');
         if (input && input.value) renderConverterResult(input.value);
+        var yuleSolstice = document.getElementById('m2g-yule-solstice');
+        if (yuleSolstice) yuleSolstice.textContent = getYuleSolsticeLabel();
         renderM2GResult();
       });
     }
@@ -1092,6 +1232,7 @@
     renderYule();
     initHemisphere();
 
+    // G2M converter init
     var converterInput = document.getElementById('converter-input');
     if (converterInput) {
       var todayStr = now.getFullYear() + '-' +
@@ -1105,44 +1246,53 @@
       });
     }
 
-    // Mode toggle
-    var modeG2M = document.getElementById('mode-g2m');
-    var modeM2G = document.getElementById('mode-m2g');
-    var panelG2M = document.getElementById('converter-g2m');
-    var panelM2G = document.getElementById('converter-m2g');
+    // Tab switching
+    var tabG2M = document.getElementById('tab-g2m');
+    var tabM2G = document.getElementById('tab-m2g');
+    if (tabG2M) tabG2M.addEventListener('click', function() { switchConverterTab('g2m'); });
+    if (tabM2G) tabM2G.addEventListener('click', function() { switchConverterTab('m2g'); });
 
-    if (modeG2M && modeM2G) {
-      modeG2M.addEventListener('click', function() {
-        panelG2M.classList.remove('hidden');
-        panelM2G.classList.add('hidden');
-        modeG2M.className = 'text-xs font-semibold px-3 py-1 rounded-l-lg border border-stone-300 bg-stone-800 text-white';
-        modeM2G.className = 'text-xs font-semibold px-3 py-1 rounded-r-lg border border-stone-300 border-l-0 bg-white text-stone-600 hover:bg-stone-50';
+    // M2G converter init
+    var m2gYear = document.getElementById('m2g-year');
+    var m2gPeriod = document.getElementById('m2g-period');
+    var m2gDay = document.getElementById('m2g-day');
+
+    if (m2gYear && m2gPeriod && m2gDay) {
+      // Default to today's metric date
+      m2gYear.value = todayMetric.year;
+      if (todayMetric.isTurning) {
+        var turningIdx = TURNING_DAYS.indexOf(todayMetric.specialDay);
+        m2gPeriod.value = 'turning-' + turningIdx;
+      } else if (todayMetric.isYule) {
+        var yuleIdx = YULE_DAYS[hemisphere].indexOf(todayMetric.specialDay);
+        m2gPeriod.value = 'yule-' + yuleIdx;
+      } else {
+        m2gPeriod.value = 'month-' + todayMetric.month;
+        m2gDay.value = todayMetric.day;
+      }
+
+      // Set Yule solstice label for initial hemisphere
+      var yuleSolstice = document.getElementById('m2g-yule-solstice');
+      if (yuleSolstice) yuleSolstice.textContent = getYuleSolsticeLabel();
+
+      updateM2GDayVisibility();
+      updateKindlingAvailability();
+      renderM2GResult();
+
+      m2gYear.addEventListener('input', function() {
+        updateKindlingAvailability();
+        renderM2GResult();
       });
-
-      modeM2G.addEventListener('click', function() {
-        panelG2M.classList.add('hidden');
-        panelM2G.classList.remove('hidden');
-        modeM2G.className = 'text-xs font-semibold px-3 py-1 rounded-r-lg border border-stone-300 border-l-0 bg-stone-800 text-white';
-        modeG2M.className = 'text-xs font-semibold px-3 py-1 rounded-l-lg border border-stone-300 bg-white text-stone-600 hover:bg-stone-50';
-
-        // Pre-fill with today's metric date
-        var yearInput = document.getElementById('metric-year');
-        var monthInput = document.getElementById('metric-month');
-        var dayInput = document.getElementById('metric-day');
-        if (yearInput && !yearInput.value) {
-          yearInput.value = todayMetric.year;
-          monthInput.value = todayMetric.month;
-          dayInput.value = todayMetric.day;
-          renderM2GResult();
-        }
+      m2gPeriod.addEventListener('change', function() {
+        updateM2GDayVisibility();
+        // Reset day to 1 when switching periods to avoid stale values
+        m2gDay.value = 1;
+        renderM2GResult();
+      });
+      m2gDay.addEventListener('input', function() {
+        renderM2GResult();
       });
     }
-
-    // Metric input listeners
-    ['metric-year', 'metric-month', 'metric-day'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.addEventListener('input', renderM2GResult);
-    });
   })();
   </script>
 </body>
