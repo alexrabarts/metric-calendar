@@ -104,12 +104,38 @@
 
       <!-- Sidebar: sticky on wide screens -->
       <aside class="lg:w-72 xl:w-80 lg:shrink-0 lg:order-2">
-        <div class="lg:sticky lg:top-4 space-y-0">
+        <div class="lg:sticky lg:top-4">
           <!-- Today Display (JS-generated) -->
           <div id="today-display"></div>
 
+          <!-- Add to Calendar -->
+          <section id="subscribe-section" class="bg-white rounded-2xl shadow-lg p-4 sm:p-5 mb-6 animate-in" style="animation-delay:0.04s">
+            <h2 class="font-display text-lg font-bold text-stone-800 mb-3 text-center">Add to Calendar</h2>
+            <div class="space-y-4">
+              <div>
+                <p class="text-sm font-semibold text-stone-700 text-center">Daily Metric Dates</p>
+                <p class="text-xs text-stone-400 mb-2 text-center">Every day's metric date + special days</p>
+                <div class="flex gap-1.5">
+                  <a data-feed="daily" data-provider="google" href="#" target="_blank" class="flex-1 text-center bg-stone-800 text-white text-xs font-semibold rounded-lg px-2 py-1.5 hover:bg-stone-700 transition-colors">Google</a>
+                  <a data-feed="daily" data-provider="apple" href="#" class="flex-1 text-center bg-stone-800 text-white text-xs font-semibold rounded-lg px-2 py-1.5 hover:bg-stone-700 transition-colors">Apple</a>
+                  <a data-feed="daily" data-provider="outlook" href="#" target="_blank" class="flex-1 text-center bg-stone-800 text-white text-xs font-semibold rounded-lg px-2 py-1.5 hover:bg-stone-700 transition-colors">Outlook</a>
+                </div>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-stone-700 text-center">Special Days &amp; Seasons Only</p>
+                <p class="text-xs text-stone-400 mb-2 text-center">~22 events/year</p>
+                <div class="flex gap-1.5">
+                  <a data-feed="lean" data-provider="google" href="#" target="_blank" class="flex-1 text-center bg-stone-100 text-stone-700 text-xs font-semibold rounded-lg px-2 py-1.5 border border-stone-200 hover:bg-stone-200 transition-colors">Google</a>
+                  <a data-feed="lean" data-provider="apple" href="#" class="flex-1 text-center bg-stone-100 text-stone-700 text-xs font-semibold rounded-lg px-2 py-1.5 border border-stone-200 hover:bg-stone-200 transition-colors">Apple</a>
+                  <a data-feed="lean" data-provider="outlook" href="#" target="_blank" class="flex-1 text-center bg-stone-100 text-stone-700 text-xs font-semibold rounded-lg px-2 py-1.5 border border-stone-200 hover:bg-stone-200 transition-colors">Outlook</a>
+                </div>
+              </div>
+              <p id="subscribe-hemisphere" class="text-xs text-stone-400 text-center">Northern Hemisphere</p>
+            </div>
+          </section>
+
           <!-- Date Converter -->
-          <section class="bg-white rounded-2xl shadow-lg p-4 sm:p-5 mb-6 animate-in" style="animation-delay:0.04s">
+          <section class="bg-white rounded-2xl shadow-lg p-4 sm:p-5 mb-6 animate-in" style="animation-delay:0.06s">
             <h2 class="font-display text-lg font-bold text-stone-800 mb-3 text-center">Date Converter</h2>
             <div>
               <div class="flex flex-col gap-2 items-center">
@@ -696,6 +722,34 @@
       }
     }
 
+    function updateSubscribeLinks() {
+      var links = document.querySelectorAll('[data-feed][data-provider]');
+      if (!links.length) return;
+
+      var files = {
+        daily: 'metric-daily-' + hemisphere + '.ics',
+        lean: 'metric-' + hemisphere + '.ics'
+      };
+
+      links.forEach(function(link) {
+        var file = files[link.dataset.feed];
+        var webcal = 'webcal://metricweek.com/calendar/' + file;
+        var https = 'https://metricweek.com/calendar/' + file;
+        var provider = link.dataset.provider;
+
+        if (provider === 'google') {
+          link.href = 'https://calendar.google.com/calendar/r?cid=' + webcal;
+        } else if (provider === 'apple') {
+          link.href = webcal;
+        } else if (provider === 'outlook') {
+          link.href = 'https://outlook.office.com/calendar/0/addfromweb?url=' + https;
+        }
+      });
+
+      var label = document.getElementById('subscribe-hemisphere');
+      if (label) label.textContent = (hemisphere === 'north' ? 'Northern' : 'Southern') + ' Hemisphere';
+    }
+
     function initHemisphere() {
       var toggle = document.getElementById('hemisphere-toggle');
       if (!toggle) return;
@@ -705,11 +759,13 @@
       }
 
       updateHemisphereLabels();
+      updateSubscribeLinks();
 
       toggle.addEventListener('change', function() {
         hemisphere = this.checked ? 'south' : 'north';
         localStorage.setItem('metricCalendarHemisphere', hemisphere);
         updateHemisphereLabels();
+        updateSubscribeLinks();
         renderSeasons();
         renderToday();
         var input = document.getElementById('converter-input');

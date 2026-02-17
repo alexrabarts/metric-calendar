@@ -8,4 +8,9 @@ metricweek.com, www.metricweek.com {
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
     }
+
+    header /calendar/*.ics {
+        Content-Type "text/calendar; charset=utf-8"
+        Cache-Control "public, max-age=86400"
+    }
 }

@@ -1,8 +1,12 @@
 remote := "alex@alex-het"
 remote_path := "/srv/metricweek"
 
+# Generate ICS calendar feeds
+generate-calendar:
+    go run ./cmd/generate-ics/
+
 # Deploy to production
-deploy:
+deploy: generate-calendar
     rsync -avz --delete www/ {{remote}}:{{remote_path}}/
     scp Caddyfile {{remote}}:{{remote_path}}/Caddyfile
     ssh {{remote}} "sudo systemctl reload caddy"
