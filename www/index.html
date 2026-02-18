@@ -151,25 +151,8 @@
       <!-- Main content -->
       <div class="lg:flex-1 lg:order-1 min-w-0">
 
-    <!-- The Turning -->
-    <section class="bg-gradient-to-br from-[#1a5c35] to-[#2d7a4a] rounded-2xl shadow-lg p-5 sm:p-6 text-white mb-6 animate-in" style="animation-delay:0.06s">
-      <h2 class="font-display text-2xl font-bold mb-1 text-center tracking-wide">The Turning</h2>
-      <p class="text-center text-emerald-100 text-sm mb-4">Year Transition · March 20–22</p>
-      <div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">
-        <div class="bg-white/15 backdrop-blur rounded-lg p-2 sm:p-3 text-center">
-          <div class="font-display font-bold text-lg">Vigil</div>
-          <div class="text-xs text-emerald-100">Reflection on the year past</div>
-        </div>
-        <div class="bg-white/15 backdrop-blur rounded-lg p-2 sm:p-3 text-center">
-          <div class="font-display font-bold text-lg">Balance</div>
-          <div class="text-xs text-emerald-100">Balance of light and dark</div>
-        </div>
-        <div class="bg-white/15 backdrop-blur rounded-lg p-2 sm:p-3 text-center">
-          <div class="font-display font-bold text-lg">Dawn</div>
-          <div class="text-xs text-emerald-100">The first light of the new year</div>
-        </div>
-      </div>
-    </section>
+    <!-- The Turning (JS-generated) -->
+    <div id="the-turning"></div>
 
     <!-- The Metric Week -->
     <section class="bg-white rounded-2xl shadow-lg p-5 sm:p-6 mb-6 animate-in" style="animation-delay:0.1s">
@@ -292,26 +275,8 @@
     <div id="season-1"></div>
     <div id="season-2"></div>
 
-    <!-- Yule -->
-    <section class="bg-gradient-to-br from-[#1e1b4b] to-[#312e81] rounded-2xl shadow-lg p-5 sm:p-6 text-white mb-6">
-      <h2 class="font-display text-2xl font-bold mb-1 text-center tracking-wide">Yule</h2>
-      <p class="text-center text-indigo-200 text-sm mb-4">Midwinter Pause · December 18–19 (20 in leap years)</p>
-      <div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">
-        <div class="bg-white/10 backdrop-blur rounded-lg p-2 sm:p-3 text-center">
-          <div class="font-display font-bold text-lg">Yule Eve</div>
-          <div class="text-xs text-indigo-200">The darkness gathers</div>
-        </div>
-        <div class="bg-white/10 backdrop-blur rounded-lg p-2 sm:p-3 text-center">
-          <div class="font-display font-bold text-lg">Midwinter</div>
-          <div class="text-xs text-indigo-200">Stillness at the heart of the year</div>
-        </div>
-        <div class="bg-white/10 border border-dashed border-indigo-300/50 rounded-lg p-2 sm:p-3 text-center">
-          <div class="font-display font-bold text-lg">Kindling</div>
-          <div class="text-xs text-indigo-200">Light returns, celebration</div>
-          <div class="text-xs text-amber-300 mt-0.5">(Leap years only)</div>
-        </div>
-      </div>
-    </section>
+    <!-- Yule (JS-generated) -->
+    <div id="yule"></div>
 
     <div id="season-3"></div>
 
@@ -378,7 +343,64 @@
     };
 
     var TURNING_DAYS = ['Vigil', 'Balance', 'Dawn'];
-    var YULE_DAYS = ['Yule Eve', 'Midwinter', 'Kindling'];
+    var YULE_DAY_NAMES = {
+      north: ['Yule Eve', 'Midwinter', 'Kindling'],
+      south: ['Yule Eve', 'Midsummer', 'Kindling']
+    };
+
+    var TURNING_CONFIG = {
+      north: {
+        gradient: 'from-[#1a5c35] to-[#2d7a4a]',
+        innerBg: 'bg-white/15',
+        subText: 'text-emerald-100',
+        subtitle: 'Year Transition \u00b7 March 20\u201322',
+        days: [
+          { name: 'Vigil', desc: 'Reflection on the year past' },
+          { name: 'Balance', desc: 'Balance of light and dark' },
+          { name: 'Dawn', desc: 'The first light of the new year' }
+        ]
+      },
+      south: {
+        gradient: 'from-[#8b4513] to-[#a0522d]',
+        innerBg: 'bg-white/15',
+        subText: 'text-orange-100',
+        subtitle: 'Year Transition \u00b7 March 20\u201322',
+        days: [
+          { name: 'Vigil', desc: 'Reflection on the year past' },
+          { name: 'Balance', desc: 'Balance of light and dark' },
+          { name: 'Dawn', desc: 'A new year begins in the turning leaves' }
+        ]
+      }
+    };
+
+    var YULE_CONFIG = {
+      north: {
+        gradient: 'from-[#1e1b4b] to-[#312e81]',
+        innerBg: 'bg-white/10',
+        subText: 'text-indigo-200',
+        leapBorder: 'border-indigo-300/50',
+        leapText: 'text-amber-300',
+        subtitle: 'Midwinter Pause \u00b7 December 18\u201319 (20 in leap years)',
+        days: [
+          { name: 'Yule Eve', desc: 'The darkness gathers' },
+          { name: 'Midwinter', desc: 'Stillness at the heart of the year' },
+          { name: 'Kindling', desc: 'Light returns, celebration' }
+        ]
+      },
+      south: {
+        gradient: 'from-[#a07d1c] to-[#c49b20]',
+        innerBg: 'bg-white/15',
+        subText: 'text-amber-100',
+        leapBorder: 'border-amber-300/50',
+        leapText: 'text-amber-200',
+        subtitle: 'Midsummer Pause \u00b7 December 18\u201319 (20 in leap years)',
+        days: [
+          { name: 'Yule Eve', desc: 'The longest light lingers' },
+          { name: 'Midsummer', desc: 'Radiance at the heart of the year' },
+          { name: 'Kindling', desc: 'Celebration in the warmth' }
+        ]
+      }
+    };
 
     var SEASONS = [
       {
@@ -499,7 +521,7 @@
       // Yule: adjusted days 271 to 270+yuleDays
       else if (adjusted <= 270 + yuleDays) {
         result.isYule = true;
-        result.specialDay = YULE_DAYS[adjusted - 271];
+        result.specialDay = YULE_DAY_NAMES[hemisphere][adjusted - 271];
         return result;
       }
       // Months 10-12: after Yule
@@ -660,6 +682,44 @@
       });
     }
 
+    function renderTurning() {
+      var el = document.getElementById('the-turning');
+      if (!el) return;
+      var c = TURNING_CONFIG[hemisphere];
+      var cards = c.days.map(function(day) {
+        return '<div class="' + c.innerBg + ' backdrop-blur rounded-lg p-2 sm:p-3 text-center">' +
+          '<div class="font-display font-bold text-lg">' + day.name + '</div>' +
+          '<div class="text-xs ' + c.subText + '">' + day.desc + '</div>' +
+        '</div>';
+      }).join('');
+      el.innerHTML = '<section class="bg-gradient-to-br ' + c.gradient + ' rounded-2xl shadow-lg p-5 sm:p-6 text-white mb-6 animate-in" style="animation-delay:0.06s">' +
+        '<h2 class="font-display text-2xl font-bold mb-1 text-center tracking-wide">The Turning</h2>' +
+        '<p class="text-center ' + c.subText + ' text-sm mb-4">' + c.subtitle + '</p>' +
+        '<div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">' + cards + '</div>' +
+      '</section>';
+    }
+
+    function renderYule() {
+      var el = document.getElementById('yule');
+      if (!el) return;
+      var c = YULE_CONFIG[hemisphere];
+      var cards = c.days.map(function(day, i) {
+        var isKindling = (i === 2);
+        var bgClass = isKindling ? c.innerBg + ' border border-dashed ' + c.leapBorder : c.innerBg;
+        var extra = isKindling ? '<div class="text-xs ' + c.leapText + ' mt-0.5">(Leap years only)</div>' : '';
+        return '<div class="' + bgClass + ' backdrop-blur rounded-lg p-2 sm:p-3 text-center">' +
+          '<div class="font-display font-bold text-lg">' + day.name + '</div>' +
+          '<div class="text-xs ' + c.subText + '">' + day.desc + '</div>' +
+          extra +
+        '</div>';
+      }).join('');
+      el.innerHTML = '<section class="bg-gradient-to-br ' + c.gradient + ' rounded-2xl shadow-lg p-5 sm:p-6 text-white mb-6">' +
+        '<h2 class="font-display text-2xl font-bold mb-1 text-center tracking-wide">Yule</h2>' +
+        '<p class="text-center ' + c.subText + ' text-sm mb-4">' + c.subtitle + '</p>' +
+        '<div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto">' + cards + '</div>' +
+      '</section>';
+    }
+
     // ==========================================
     // Date Converter
     // ==========================================
@@ -738,11 +798,11 @@
         var provider = link.dataset.provider;
 
         if (provider === 'google') {
-          link.href = 'https://calendar.google.com/calendar/r?cid=' + webcal;
+          link.href = 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(webcal);
         } else if (provider === 'apple') {
           link.href = webcal;
         } else if (provider === 'outlook') {
-          link.href = 'https://outlook.office.com/calendar/0/addfromweb?url=' + https;
+          link.href = 'https://outlook.office.com/calendar/0/addfromweb?url=' + encodeURIComponent(https);
         }
       });
 
@@ -764,9 +824,12 @@
       toggle.addEventListener('change', function() {
         hemisphere = this.checked ? 'south' : 'north';
         localStorage.setItem('metricCalendarHemisphere', hemisphere);
+        todayMetric = gregorianToMetric(now.getFullYear(), now.getMonth() + 1, now.getDate());
         updateHemisphereLabels();
         updateSubscribeLinks();
+        renderTurning();
         renderSeasons();
+        renderYule();
         renderToday();
         var input = document.getElementById('converter-input');
         if (input && input.value) renderConverterResult(input.value);
@@ -777,7 +840,9 @@
     // Init
     // ==========================================
     renderToday();
+    renderTurning();
     renderSeasons();
+    renderYule();
     initHemisphere();
 
     var converterInput = document.getElementById('converter-input');
