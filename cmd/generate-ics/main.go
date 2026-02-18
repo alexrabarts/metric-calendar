@@ -23,7 +23,7 @@ var seasonNamesNorth = [4]string{"Rising", "Flourishing", "Gathering", "Stillnes
 var seasonNamesSouth = [4]string{"Gathering", "Stillness", "Rising", "Flourishing"}
 
 var turningDayNames = [3]string{"Vigil", "Balance", "Dawn"}
-var yuleDayNames = [3]string{"Yule Eve", "Midwinter", "Kindling"}
+var yuleDayNames = [3]string{"Yule Eve", "Solstice", "Kindling"}
 
 // MetricDate holds the result of converting a Gregorian date.
 type MetricDate struct {
@@ -221,7 +221,7 @@ func seasonStartGregorian(metricYear int) [4]time.Time {
 	// Season 2: Sep 19 of gregYear
 	s2 := time.Date(gregYear, 9, 19, 0, 0, 0, 0, time.UTC)
 	// Season 3: After Yule. Yule starts Dec 18 and lasts 2 or 3 days.
-	// Yule Eve = Dec 18, Midwinter = Dec 19, Kindling = Dec 20 (leap only)
+	// Yule Eve = Dec 18, Solstice = Dec 19, Kindling = Dec 20 (leap only)
 	// Decil 1 = day after Yule ends
 	yuleEnd := 20
 	if leap {
