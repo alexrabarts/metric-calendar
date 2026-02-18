@@ -31,8 +31,13 @@ type MetricDate struct {
 	IsLeapYear  bool
 	IsTurning   bool
 	IsYule      bool
-	IsMidsummer bool
-	IsSpiral    bool
+	IsMidsummer    bool
+	IsSpiral       bool
+	IsSextant      bool
+	IsTrine        bool
+	IsConvergence  bool
+	IsMeridian     bool
+	IsHarmony      bool
 	IsRest      bool
 	Month       int // 1-12
 	Day         int // 1-30
@@ -112,6 +117,11 @@ func gregorianToMetric(t time.Time) MetricDate {
 	result.IsRest = result.WeekDay >= 8
 	result.IsMidsummer = result.Month == 4 && result.Day == 1
 	result.IsSpiral = result.Month == 5 && result.Day == 18
+	result.IsSextant = result.Month == 2 && result.Day == 30
+	result.IsTrine = result.Month == 4 && result.Day == 30
+	result.IsConvergence = result.Month == 5 && result.Day == 24
+	result.IsMeridian = result.Month == 6 && result.Day == 30
+	result.IsHarmony = result.Month == 8 && result.Day == 30
 	result.DayName = dayNames[result.WeekDay-1]
 	result.MonthName = monthNames[result.Month-1]
 	result.SeasonIndex = (result.Month - 1) / 3
@@ -293,7 +303,7 @@ func generateFeed(cfg feedConfig, outDir string, startDate, endDate time.Time, d
 				uid:        fmt.Sprintf("midsummer-%s@metricweek.com", dateStr),
 				dtstart:    dateStr,
 				dtend:      endStr,
-				summary:    fmt.Sprintf("Midsummer (%s 1)", monthNames[3]),
+				summary:    fmt.Sprintf("☀️ Midsummer (%s 1)", monthNames[3]),
 				categories: "Metric Calendar,Special Day",
 			}, dtstamp))
 		}
@@ -303,7 +313,57 @@ func generateFeed(cfg feedConfig, outDir string, startDate, endDate time.Time, d
 				uid:        fmt.Sprintf("spiral-%s@metricweek.com", dateStr),
 				dtstart:    dateStr,
 				dtend:      endStr,
-				summary:    fmt.Sprintf("The Spiral (%s 18)", monthNames[4]),
+				summary:    fmt.Sprintf("🌀 The Spiral (%s 18)", monthNames[4]),
+				categories: "Metric Calendar,Special Day",
+			}, dtstamp))
+		}
+
+		if mc.IsSextant {
+			events = append(events, formatEvent(icsEvent{
+				uid:        fmt.Sprintf("sextant-%s@metricweek.com", dateStr),
+				dtstart:    dateStr,
+				dtend:      endStr,
+				summary:    fmt.Sprintf("🧭 The Sextant (%s 30)", monthNames[1]),
+				categories: "Metric Calendar,Special Day",
+			}, dtstamp))
+		}
+
+		if mc.IsTrine {
+			events = append(events, formatEvent(icsEvent{
+				uid:        fmt.Sprintf("trine-%s@metricweek.com", dateStr),
+				dtstart:    dateStr,
+				dtend:      endStr,
+				summary:    fmt.Sprintf("🔺 The Trine (%s 30)", monthNames[3]),
+				categories: "Metric Calendar,Special Day",
+			}, dtstamp))
+		}
+
+		if mc.IsConvergence {
+			events = append(events, formatEvent(icsEvent{
+				uid:        fmt.Sprintf("convergence-%s@metricweek.com", dateStr),
+				dtstart:    dateStr,
+				dtend:      endStr,
+				summary:    fmt.Sprintf("🔀 Convergence (%s 24)", monthNames[4]),
+				categories: "Metric Calendar,Special Day",
+			}, dtstamp))
+		}
+
+		if mc.IsMeridian {
+			events = append(events, formatEvent(icsEvent{
+				uid:        fmt.Sprintf("meridian-%s@metricweek.com", dateStr),
+				dtstart:    dateStr,
+				dtend:      endStr,
+				summary:    fmt.Sprintf("🌗 The Meridian (%s 30)", monthNames[5]),
+				categories: "Metric Calendar,Special Day",
+			}, dtstamp))
+		}
+
+		if mc.IsHarmony {
+			events = append(events, formatEvent(icsEvent{
+				uid:        fmt.Sprintf("harmony-%s@metricweek.com", dateStr),
+				dtstart:    dateStr,
+				dtend:      endStr,
+				summary:    fmt.Sprintf("🎵 Harmony (%s 30)", monthNames[7]),
 				categories: "Metric Calendar,Special Day",
 			}, dtstamp))
 		}
