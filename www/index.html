@@ -398,6 +398,10 @@
           </div>
           <div class="flex items-start gap-3">
             <div class="w-2 h-2 rounded-full bg-[#7c8db5] mt-1.5 shrink-0"></div>
+            <div><span class="font-semibold text-stone-700">🎭 The Mask</span> <span class="text-xs text-stone-400">Octil 13 &middot; Day 223 &middot; 222.5&deg;</span><br><span class="text-sm text-stone-500">The golden angle's complement. Every visible pattern implies a hidden one &mdash; the unseen geometry that makes the spiral possible.</span></div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-[#7c8db5] mt-1.5 shrink-0"></div>
             <div><span class="font-semibold text-stone-700">🎵 Harmony</span> <span class="text-xs text-stone-400">Octil 30 &middot; Day 240 &middot; 2:3</span><br><span class="text-sm text-stone-500">The perfect fifth &mdash; the most consonant interval in music, foundation of harmony across every tradition.</span></div>
           </div>
         </div>
@@ -540,7 +544,7 @@
         cardBg: 'bg-[#fdf0e6]', cardBorder: 'border-[#e0c4a8]', headerColor: 'text-[#9a4a2a]',
         months: [
           { name: 'Septil', dates: 'G: Sep 19 \u2013 Oct 18', weeks: 'Weeks 19\u201321', monthIndex: 7 },
-          { name: 'Octil', dates: 'G: Oct 19 \u2013 Nov 17', weeks: 'Weeks 22\u201324', monthIndex: 8, harmony: 30, note: '\u{1F3B5}\u00a0Harmony' },
+          { name: 'Octil', dates: 'G: Oct 19 \u2013 Nov 17', weeks: 'Weeks 22\u201324', monthIndex: 8, mask: 13, harmony: 30, note: '\u{1F3AD}\u00a0The\u00a0Mask \u00b7 \u{1F3B5}\u00a0Harmony' },
           { name: 'Novil', dates: 'G: Nov 18 \u2013 Dec 17', weeks: 'Weeks 25\u201327', monthIndex: 9 },
         ]
       },
@@ -612,6 +616,7 @@
         isConvergence: false,
         isMeridian: false,
         isHarmony: false,
+        isMask: false,
         isRest: false,
         month: 0,
         day: 0,
@@ -659,6 +664,7 @@
       result.isConvergence = (result.month === 5 && result.day === 24);
       result.isMeridian = (result.month === 6 && result.day === 30);
       result.isHarmony = (result.month === 8 && result.day === 30);
+      result.isMask = (result.month === 8 && result.day === 13);
       result.dayName = DAY_NAMES[result.weekDay - 1];
       result.monthName = MONTH_NAMES[result.month - 1];
       result.seasonIndex = Math.floor((result.month - 1) / 3);
@@ -712,6 +718,7 @@
         if (todayMetric.isConvergence) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F500} Convergence</span>');
         if (todayMetric.isMeridian) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F317} The Meridian</span>');
         if (todayMetric.isHarmony) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F3B5} Harmony</span>');
+        if (todayMetric.isMask) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F3AD} The Mask</span>');
         if (tags.length) html += '<div class="mb-2">' + tags.join(' ') + '</div>';
         html += '<div class="text-stone-500 text-sm font-mono">' + compact + '</div>';
         html += '</div>';
@@ -736,7 +743,8 @@
       var con = month.convergence === day;
       var mer = month.meridian === day;
       var har = month.harmony === day;
-      var observance = spi || sex || tri || con || mer || har;
+      var mas = month.mask === day;
+      var observance = spi || sex || tri || con || mer || har || mas;
       var rest = isRest(day);
       var isToday = !todayMetric.isTurning && !todayMetric.isYule &&
                     todayMetric.month === monthIndex && todayMetric.day === day;
@@ -763,6 +771,7 @@
       if (con) titles.push('Convergence');
       if (mer) titles.push('The Meridian');
       if (har) titles.push('Harmony');
+      if (mas) titles.push('The Mask');
       var titleAttr = titles.length ? ' title="' + titles.join(' \u00b7 ') + '"' : '';
 
       return '<div class="text-center text-xs sm:text-sm py-0.5 sm:py-1 rounded cursor-default ' + cls + '"' + titleAttr + ' onmouseover="_hoverDay(' + monthIndex + ',' + day + ')" onmouseout="_unhoverDay(' + monthIndex + ')">' + day + '</div>';
@@ -944,6 +953,7 @@
         if (mc.isConvergence) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F500} Convergence</span>');
         if (mc.isMeridian) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F317} The Meridian</span>');
         if (mc.isHarmony) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3B5} Harmony</span>');
+        if (mc.isMask) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3AD} The Mask</span>');
         if (tags.length) html += '<div class="mt-2">' + tags.join(' ') + '</div>';
       }
 
@@ -993,6 +1003,7 @@
       if (mc.isConvergence) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F500} Convergence</span>');
       if (mc.isMeridian) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F317} The Meridian</span>');
       if (mc.isHarmony) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3B5} Harmony</span>');
+      if (mc.isMask) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3AD} The Mask</span>');
       if (tags.length) html += '<div class="mt-2">' + tags.join(' ') + '</div>';
       html += '</div>';
       el.innerHTML = html;

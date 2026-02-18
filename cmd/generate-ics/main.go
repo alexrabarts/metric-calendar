@@ -38,6 +38,7 @@ type MetricDate struct {
 	IsConvergence  bool
 	IsMeridian     bool
 	IsHarmony      bool
+	IsMask         bool
 	IsRest      bool
 	Month       int // 1-12
 	Day         int // 1-30
@@ -122,6 +123,7 @@ func gregorianToMetric(t time.Time) MetricDate {
 	result.IsConvergence = result.Month == 5 && result.Day == 24
 	result.IsMeridian = result.Month == 6 && result.Day == 30
 	result.IsHarmony = result.Month == 8 && result.Day == 30
+	result.IsMask = result.Month == 8 && result.Day == 13
 	result.DayName = dayNames[result.WeekDay-1]
 	result.MonthName = monthNames[result.Month-1]
 	result.SeasonIndex = (result.Month - 1) / 3
@@ -364,6 +366,16 @@ func generateFeed(cfg feedConfig, outDir string, startDate, endDate time.Time, d
 				dtstart:    dateStr,
 				dtend:      endStr,
 				summary:    fmt.Sprintf("🎵 Harmony (%s 30)", monthNames[7]),
+				categories: "Metric Calendar,Special Day",
+			}, dtstamp))
+		}
+
+		if mc.IsMask {
+			events = append(events, formatEvent(icsEvent{
+				uid:        fmt.Sprintf("mask-%s@metricweek.com", dateStr),
+				dtstart:    dateStr,
+				dtend:      endStr,
+				summary:    fmt.Sprintf("🎭 The Mask (%s 13)", monthNames[7]),
 				categories: "Metric Calendar,Special Day",
 			}, dtstamp))
 		}
