@@ -1,3 +1,3 @@
-module github.com/alexrabarts/metricweek-web
+module github.com/alexrabarts/metric-calendar
 
 go 1.23
