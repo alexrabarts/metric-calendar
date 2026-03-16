@@ -3,3 +3,5 @@ node_modules/
 .build/
 __pycache__/
 *.pyc
+libs/python/dist/
+libs/python/src/*.egg-info/
