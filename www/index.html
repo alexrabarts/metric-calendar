@@ -705,33 +705,45 @@
       var el = document.getElementById('today-display');
       if (!el) return;
 
-      var html = '<section class="bg-gradient-to-r from-stone-800 to-stone-700 rounded-2xl shadow-lg p-4 sm:p-5 text-white mb-6 animate-in" style="animation-delay:0.02s">';
-      html += '<h2 class="font-display text-xs font-bold text-stone-400 mb-2 text-center uppercase tracking-widest">Today</h2>';
-
-      if (todayMetric.isTurning || todayMetric.isYule) {
-        var label = todayMetric.isTurning ? 'The Turning' : 'Yule';
+      var html;
+      if (todayMetric.isTurning) {
+        var cfg = TURNING_CONFIG[hemisphere];
+        html = '<section class="bg-gradient-to-r ' + cfg.gradient + ' rounded-2xl shadow-lg p-4 sm:p-5 text-white mb-6 animate-in" style="animation-delay:0.02s">';
+        html += '<h2 class="font-display text-xs font-bold mb-2 text-center uppercase tracking-widest" style="opacity:0.6">Today</h2>';
         html += '<div class="text-center">';
         html += '<div class="font-display text-2xl font-bold mb-1">' + todayMetric.specialDay + '</div>';
-        html += '<div class="text-stone-300 text-sm">' + label + ' \u00b7 Year ' + todayMetric.year + '</div>';
+        html += '<div class="' + cfg.subText + ' text-sm">The Turning \u00b7 Year ' + todayMetric.year + '</div>';
+        html += '</div>';
+      } else if (todayMetric.isYule) {
+        var cfg = YULE_CONFIG[hemisphere];
+        html = '<section class="bg-gradient-to-r ' + cfg.gradient + ' rounded-2xl shadow-lg p-4 sm:p-5 text-white mb-6 animate-in" style="animation-delay:0.02s">';
+        html += '<h2 class="font-display text-xs font-bold mb-2 text-center uppercase tracking-widest" style="opacity:0.6">Today</h2>';
+        html += '<div class="text-center">';
+        html += '<div class="font-display text-2xl font-bold mb-1">' + todayMetric.specialDay + '</div>';
+        html += '<div class="' + cfg.subText + ' text-sm">Yule \u00b7 Year ' + todayMetric.year + '</div>';
         html += '</div>';
       } else {
+        var colors = getSeasonColors(todayMetric.seasonIndex);
         var compact = formatCompact(todayMetric);
+        html = '<section class="rounded-2xl shadow-lg p-4 sm:p-5 mb-6 animate-in border" style="animation-delay:0.02s;background-color:' + colors.bg + ';border-color:' + colors.border + '">';
+        html += '<h2 class="font-display text-xs font-bold mb-2 text-center uppercase tracking-widest" style="color:' + colors.text + ';opacity:0.6">Today</h2>';
         html += '<div class="text-center">';
-        html += '<div class="font-display text-2xl font-bold mb-1">' + todayMetric.monthName + ' ' + todayMetric.day + '</div>';
-        html += '<div class="text-stone-300 text-sm mb-1">Year ' + todayMetric.year + '</div>';
-        html += '<div class="text-stone-300 text-sm mb-2">' + todayMetric.dayName + ' \u00b7 ' + todayMetric.seasonName + '</div>';
+        html += '<div class="font-display text-2xl font-bold mb-1" style="color:' + colors.text + '">' + todayMetric.monthName + ' ' + todayMetric.day + '</div>';
+        html += '<div class="text-sm mb-1" style="color:' + colors.text + ';opacity:0.7">Year ' + todayMetric.year + '</div>';
+        html += '<div class="text-sm mb-2" style="color:' + colors.text + ';opacity:0.7">' + todayMetric.dayName + ' \u00b7 ' + todayMetric.seasonName + '</div>';
+        var tagStyle = 'style="background-color:' + colors.border + ';color:' + colors.text + '"';
         var tags = [];
-        if (todayMetric.isRest) tags.push('<span class="inline-block bg-[#c2685a]/30 text-[#e8a89a] text-xs px-2 py-0.5 rounded-full">The Rest</span>');
-        if (todayMetric.isMidsummer) tags.push('<span class="inline-block bg-amber-500/30 text-amber-200 text-xs px-2 py-0.5 rounded-full">' + getSolsticeLabel() + '</span>');
-        if (todayMetric.isSpiral) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F300} The Spiral</span>');
-        if (todayMetric.isSextant) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F9ED} The Sextant</span>');
-        if (todayMetric.isTrine) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F53A} The Trine</span>');
-        if (todayMetric.isConvergence) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F500} Convergence</span>');
-        if (todayMetric.isMeridian) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F317} The Meridian</span>');
-        if (todayMetric.isHarmony) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F3B5} Harmony</span>');
-        if (todayMetric.isMask) tags.push('<span class="inline-block bg-[#7c8db5]/30 text-[#c0cadf] text-xs px-2 py-0.5 rounded-full">\u{1F3AD} The Mask</span>');
+        if (todayMetric.isRest) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>The Rest</span>');
+        if (todayMetric.isMidsummer) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>' + getSolsticeLabel() + '</span>');
+        if (todayMetric.isSpiral) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F300} The Spiral</span>');
+        if (todayMetric.isSextant) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F9ED} The Sextant</span>');
+        if (todayMetric.isTrine) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F53A} The Trine</span>');
+        if (todayMetric.isConvergence) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F500} Convergence</span>');
+        if (todayMetric.isMeridian) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F317} The Meridian</span>');
+        if (todayMetric.isHarmony) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F3B5} Harmony</span>');
+        if (todayMetric.isMask) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F3AD} The Mask</span>');
         if (tags.length) html += '<div class="mb-2">' + tags.join(' ') + '</div>';
-        html += '<div class="text-stone-500 text-sm font-mono">' + compact + '</div>';
+        html += '<div class="text-sm font-mono" style="color:' + colors.text + ';opacity:0.5">' + compact + '</div>';
         html += '</div>';
       }
 
