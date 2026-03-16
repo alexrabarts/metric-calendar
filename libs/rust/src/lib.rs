@@ -1,4 +1,4 @@
-//! Metric Calendar — a precision decimal calendar system.
+//! Metric Calendar — a rational decimal calendar system.
 //!
 //! Year 0 = spring equinox 1970. Each year begins at the spring equinox (March 20).
 

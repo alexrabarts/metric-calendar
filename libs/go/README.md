@@ -1,6 +1,6 @@
 # metric — Go library for the Metric Calendar
 
-A Go library for working with the Metric Calendar — a precision decimal calendar system built on the spring equinox, ten-day weeks, and thirty-day months.
+A Go library for working with the Metric Calendar — a rational decimal calendar system built on the spring equinox, ten-day weeks, and thirty-day months.
 
 The Metric Calendar year begins on the spring equinox (March 20) with three **Turning Days** (Vigil, Balance, Dawn), followed by nine regular months of thirty days each, a **Yule** intercalary period of two or three days, and then three final months of thirty days. Every date aligns with a whole number of ten-day weeks, and special solar anchor points — Midsummer and Spiral — fall on predictable calendar positions each year.
 

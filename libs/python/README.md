@@ -1,6 +1,6 @@
 # metric_calendar
 
-A Python library for the [Metric Calendar](https://metricweek.com) — a precision decimal calendar system built on the March equinox.
+A Python library for the [Metric Calendar](https://metricweek.com) — a rational decimal calendar system built on the March equinox.
 
 The Metric Calendar divides the solar year into 12 months of exactly 30 days each, organised into 10-day weeks. The year begins at the vernal equinox (March 20) with three intercalary Turning days, and includes two or three Yule days at midsummer to keep the calendar aligned with the solar year. Every date is fully deterministic from standard Gregorian input.
 

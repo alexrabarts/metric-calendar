@@ -1,6 +1,6 @@
 # MetricCalendar
 
-A Ruby library for working with the [Metric Calendar](https://metricweek.com) — a precision decimal calendar system built on the spring equinox, with 10-day weeks and 12 months of 30 days.
+A Ruby library for working with the [Metric Calendar](https://metricweek.com) — a rational decimal calendar system built on the spring equinox, with 10-day weeks and 12 months of 30 days.
 
 ## Installation
 

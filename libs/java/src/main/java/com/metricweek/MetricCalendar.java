@@ -6,7 +6,7 @@ import java.util.TimeZone;
 /**
  * Metric Calendar date conversion utility.
  *
- * <p>The Metric Calendar is a precision decimal calendar system with 10-day weeks
+ * <p>The Metric Calendar is a rational decimal calendar system with 10-day weeks
  * and 12 months of 30 days. Year 0 = spring equinox 1970.
  *
  * @see <a href="https://metricweek.com">metricweek.com</a>

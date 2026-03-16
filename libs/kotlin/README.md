@@ -1,6 +1,6 @@
 # Metric Calendar — Kotlin Library
 
-A Kotlin/JVM library for converting between Gregorian dates and the [Metric Calendar](https://metricweek.com) system — a precision decimal calendar anchored to the spring equinox.
+A Kotlin/JVM library for converting between Gregorian dates and the [Metric Calendar](https://metricweek.com) system — a rational decimal calendar anchored to the spring equinox.
 
 The Metric Calendar divides the year into:
 - **The Turning** — 3 intercalary days at the spring equinox (Vigil, Balance, Dawn)

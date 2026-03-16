@@ -1,6 +1,6 @@
 # metric-calendar
 
-JavaScript/TypeScript library for the [Metric Calendar](https://metricweek.com) — a precision decimal calendar system built on 10-day weeks, 30-day months, and the spring equinox.
+JavaScript/TypeScript library for the [Metric Calendar](https://metricweek.com) — a rational decimal calendar system built on 10-day weeks, 30-day months, and the spring equinox.
 
 The Metric Calendar divides the year into 12 months of exactly 30 days each, with 3 Turning days at the spring equinox and 2–3 Yule days at midwinter. Every month has three 10-day weeks; days 8, 9, and 10 (Octday, Novday, Decday) are rest days. Year zero is 1970 — a nod to the Unix epoch.
 

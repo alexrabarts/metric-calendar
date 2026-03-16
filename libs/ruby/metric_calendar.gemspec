@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.email       = []
   s.homepage    = 'https://metricweek.com'
   s.summary     = 'Metric Calendar date conversion'
-  s.description = 'A Ruby library for working with the Metric Calendar — a precision decimal calendar system with 10-day weeks and 12 months of 30 days.'
+  s.description = 'A Ruby library for working with the Metric Calendar — a rational decimal calendar system with 10-day weeks and 12 months of 30 days.'
   s.license     = 'MIT'
   s.metadata    = { 'source_code_uri' => 'https://github.com/alexrabarts/metric-calendar' }
   s.files       = ['lib/metric_calendar.rb']

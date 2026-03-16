@@ -1,6 +1,6 @@
 # metric_calendar
 
-A Rust library for the [Metric Calendar](https://metricweek.com) — a precision decimal calendar system built on natural astronomical cycles.
+A Rust library for the [Metric Calendar](https://metricweek.com) — a rational decimal calendar system built on natural astronomical cycles.
 
 The Metric Calendar divides the solar year into 12 months of 30 days each, grouped into 3-month seasons. Each month contains three 10-day weeks. The year begins at the spring equinox (March 20), marked by a 3-day intercalary period called The Turning. At midwinter, 2 or 3 Yule days bridge the transition into the new year's final months.
 

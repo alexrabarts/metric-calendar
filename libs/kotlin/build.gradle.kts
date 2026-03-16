@@ -32,7 +32,7 @@ publishing {
             from(components["java"])
             pom {
                 name.set("Metric Calendar")
-                description.set("Metric Calendar date conversion — a precision decimal calendar system")
+                description.set("Metric Calendar date conversion — a rational decimal calendar system")
                 url.set("https://metricweek.com")
                 licenses {
                     license {

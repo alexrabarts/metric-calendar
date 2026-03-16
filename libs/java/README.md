@@ -4,7 +4,7 @@ A Java 8 library for converting between Gregorian and [Metric Calendar](https://
 
 ## Overview
 
-The Metric Calendar is a precision decimal calendar system with:
+The Metric Calendar is a rational decimal calendar system with:
 
 - **10-day weeks** (Primday through Decday)
 - **12 months of 30 days** (Unil through Duodecil)

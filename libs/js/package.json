@@ -1,7 +1,7 @@
 {
   "name": "metric-calendar",
   "version": "1.0.0",
-  "description": "Metric Calendar date conversion — a precision decimal calendar system",
+  "description": "Metric Calendar date conversion — a rational decimal calendar system",
   "author": "Alex Rabarts",
   "homepage": "https://metricweek.com",
   "repository": {
