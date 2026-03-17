@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 libs/python/dist/
 libs/python/src/*.egg-info/
+libs/rust/target/
+libs/rust/Cargo.lock
+libs/ruby/*.gem
