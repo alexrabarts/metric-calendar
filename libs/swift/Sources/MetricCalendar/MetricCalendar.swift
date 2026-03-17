@@ -11,8 +11,12 @@ private let monthNames: [String] = [
     "Septil", "Octil", "Novil", "Decil", "Undecil", "Duodecil",
 ]
 
+private let seasonNames: [String] = ["Rising", "Flourishing", "Gathering", "Stillness"]
+
 private let turningDayNames: [String] = ["Vigil", "Balance", "Dawn"]
 private let yuleDayNames: [String] = ["Yule Eve", "Midwinter", "Kindling"]
+
+private let formatTokenRe = try! NSRegularExpression(pattern: "MMM|MM|M|DD|D|WW|W|Y|S")
 
 /// A date in the Metric Calendar system.
 public struct MetricDate: Equatable, Hashable, CustomStringConvertible {
@@ -37,12 +41,26 @@ public struct MetricDate: Equatable, Hashable, CustomStringConvertible {
     public let isYule: Bool
     /// True on Quadril 1 (summer solstice)
     public let isMidsummer: Bool
+    /// True on Duil 30
+    public let isSextant: Bool
+    /// True on Quadril 30
+    public let isTrine: Bool
     /// True on Quintil 18 (golden angle day)
     public let isSpiral: Bool
+    /// True on Quintil 24
+    public let isConvergence: Bool
+    /// True on Sextil 30
+    public let isMeridian: Bool
+    /// True on Octil 13
+    public let isMask: Bool
+    /// True on Octil 30
+    public let isHarmony: Bool
     /// True on days 8-10 of any 10-day week
     public let isRest: Bool
     /// "Vigil", "Balance", "Dawn", "Yule Eve", "Midwinter", "Kindling", or ""
     public let specialDay: String
+    /// Name of the observance, or "" if none
+    public let observance: String
 
     public var description: String {
         if isTurning { return "Year \(year), The Turning — \(specialDay)" }
@@ -129,27 +147,32 @@ public func gregorianToMetric(_ date: Date) -> MetricDate {
         dayOfYear = Int((utcMidnight - prevEquinoxTs) / 86400) + 1
     }
 
-    // Leap year is determined by whether the Gregorian year that follows the equinox is a leap year.
-    // The metric year starts at the equinox of `equinoxYear`. The following calendar year is
-    // equinoxYear + 1, which determines whether Yule has a Kindling day.
     let leap = isLeapYear(metricYear + 1971)
     let yuleDayCount = leap ? 3 : 2
 
     func makeTurning(_ idx: Int) -> MetricDate {
-        MetricDate(
+        let name = turningDayNames[idx]
+        return MetricDate(
             year: metricYear, month: 0, monthName: "", day: 0, weekDay: 0,
             dayName: "", week: 0, seasonIndex: -1, isLeapYear: leap,
-            isTurning: true, isYule: false, isMidsummer: false, isSpiral: false,
-            isRest: false, specialDay: turningDayNames[idx]
+            isTurning: true, isYule: false,
+            isMidsummer: false, isSextant: false, isTrine: false,
+            isSpiral: false, isConvergence: false, isMeridian: false,
+            isMask: false, isHarmony: false,
+            isRest: false, specialDay: name, observance: name
         )
     }
 
     func makeYule(_ idx: Int) -> MetricDate {
-        MetricDate(
+        let name = yuleDayNames[idx]
+        return MetricDate(
             year: metricYear, month: 0, monthName: "", day: 0, weekDay: 0,
             dayName: "", week: 0, seasonIndex: -1, isLeapYear: leap,
-            isTurning: false, isYule: true, isMidsummer: false, isSpiral: false,
-            isRest: false, specialDay: yuleDayNames[idx]
+            isTurning: false, isYule: true,
+            isMidsummer: false, isSextant: false, isTrine: false,
+            isSpiral: false, isConvergence: false, isMeridian: false,
+            isMask: false, isHarmony: false,
+            isRest: false, specialDay: name, observance: name
         )
     }
 
@@ -181,6 +204,26 @@ public func gregorianToMetric(_ date: Date) -> MetricDate {
     let weekDay = (d - 1) % 10 + 1
     let week = (m - 1) * 3 + (d - 1) / 10 + 1
 
+    let isMidsummer = m == 4 && d == 1
+    let isSextant = m == 2 && d == 30
+    let isTrine = m == 4 && d == 30
+    let isSpiral = m == 5 && d == 18
+    let isConvergence = m == 5 && d == 24
+    let isMeridian = m == 6 && d == 30
+    let isMask = m == 8 && d == 13
+    let isHarmony = m == 8 && d == 30
+
+    let observance: String
+    if isMidsummer { observance = "Midsummer" }
+    else if isSextant { observance = "The Sextant" }
+    else if isTrine { observance = "The Trine" }
+    else if isSpiral { observance = "The Spiral" }
+    else if isConvergence { observance = "Convergence" }
+    else if isMeridian { observance = "The Meridian" }
+    else if isMask { observance = "The Mask" }
+    else if isHarmony { observance = "Harmony" }
+    else { observance = "" }
+
     return MetricDate(
         year: metricYear,
         month: m, monthName: monthNames[m - 1],
@@ -188,11 +231,60 @@ public func gregorianToMetric(_ date: Date) -> MetricDate {
         week: week, seasonIndex: (m - 1) / 3,
         isLeapYear: leap,
         isTurning: false, isYule: false,
-        isMidsummer: m == 4 && d == 1,
-        isSpiral: m == 5 && d == 18,
+        isMidsummer: isMidsummer,
+        isSextant: isSextant,
+        isTrine: isTrine,
+        isSpiral: isSpiral,
+        isConvergence: isConvergence,
+        isMeridian: isMeridian,
+        isMask: isMask,
+        isHarmony: isHarmony,
         isRest: weekDay >= 8,
-        specialDay: ""
+        specialDay: "",
+        observance: observance
     )
+}
+
+/// Formats a `MetricDate` using a pattern string.
+///
+/// Tokens:
+/// - `MMM`  month name (e.g. "Unil")
+/// - `MM`   month zero-padded (e.g. "01")
+/// - `M`    month number (e.g. "1")
+/// - `DD`   day zero-padded (e.g. "04")
+/// - `D`    day number (e.g. "4")
+/// - `WW`   weekday name (e.g. "Quintday")
+/// - `W`    weekday number (e.g. "5")
+/// - `Y`    year number (e.g. "56")
+/// - `S`    season name (e.g. "Rising")
+///
+/// Example: `format(d, "WW, MMM D, Year Y")` → `"Quintday, Unil 4, Year 56"`
+public func format(_ date: MetricDate, pattern: String) -> String {
+    let seasonName = date.seasonIndex >= 0 && date.seasonIndex <= 3
+        ? seasonNames[date.seasonIndex] : ""
+    let nsPattern = pattern as NSString
+    let range = NSRange(location: 0, length: nsPattern.length)
+    var result = pattern
+    let matches = formatTokenRe.matches(in: pattern, range: range).reversed()
+    for match in matches {
+        let token = nsPattern.substring(with: match.range)
+        let replacement: String
+        switch token {
+        case "MMM": replacement = date.monthName
+        case "MM":  replacement = String(format: "%02d", date.month)
+        case "M":   replacement = "\(date.month)"
+        case "DD":  replacement = String(format: "%02d", date.day)
+        case "D":   replacement = "\(date.day)"
+        case "WW":  replacement = date.dayName
+        case "W":   replacement = "\(date.weekDay)"
+        case "Y":   replacement = "\(date.year)"
+        case "S":   replacement = seasonName
+        default:    replacement = token
+        }
+        let swiftRange = Range(match.range, in: result)!
+        result.replaceSubrange(swiftRange, with: replacement)
+    }
+    return result
 }
 
 /// Converts a Metric Calendar date back to a Gregorian `Date`.
@@ -226,16 +318,13 @@ public func metricToGregorian(
         let m = periodValue
         let d = dayOfMonth
         if m <= 9 {
-            // Months 1-9 come after The Turning (3 days), then 0-indexed within month
             offset = 3 + (m - 1) * 30 + (d - 1)
         } else {
-            // Months 10-12 come after Turning + months 1-9 (270 days) + Yule
             offset = 3 + 270 + yuleDayCount + (m - 10) * 30 + (d - 1)
         }
     case "yule":
         guard (0...2).contains(periodValue) else { throw MetricCalendarError.invalidYuleValue }
         if periodValue == 2 && !leap { throw MetricCalendarError.kindlingRequiresLeapYear }
-        // Yule comes after Turning (3) + months 1-9 (270)
         offset = 3 + 270 + periodValue
     default:
         throw MetricCalendarError.unknownPeriodType(periodType)

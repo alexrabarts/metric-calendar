@@ -12,6 +12,8 @@ const MONTH_NAMES: [&str; 12] = [
     "Septil", "Octil", "Novil", "Decil", "Undecil", "Duodecil",
 ];
 
+const SEASON_NAMES: [&str; 4] = ["Rising", "Flourishing", "Gathering", "Stillness"];
+
 const TURNING_DAY_NAMES: [&str; 3] = ["Vigil", "Balance", "Dawn"];
 const YULE_DAY_NAMES: [&str; 3] = ["Yule Eve", "Midwinter", "Kindling"];
 
@@ -38,12 +40,26 @@ pub struct MetricDate {
     pub is_yule: bool,
     /// true on Quadril 1 (summer solstice)
     pub is_midsummer: bool,
+    /// true on Duil 30
+    pub is_sextant: bool,
+    /// true on Quadril 30
+    pub is_trine: bool,
     /// true on Quintil 18 (golden angle day)
     pub is_spiral: bool,
+    /// true on Quintil 24
+    pub is_convergence: bool,
+    /// true on Sextil 30
+    pub is_meridian: bool,
+    /// true on Octil 13
+    pub is_mask: bool,
+    /// true on Octil 30
+    pub is_harmony: bool,
     /// true on days 8-10 of any 10-day week
     pub is_rest: bool,
     /// name for Turning or Yule days, empty string otherwise
     pub special_day: &'static str,
+    /// name of observance, or empty string if none
+    pub observance: &'static str,
 }
 
 fn is_leap_year(y: i32) -> bool {
@@ -87,15 +103,20 @@ pub fn gregorian_to_metric(year: i32, month: u32, day: u32) -> MetricDate {
         week: 0, season_index: -1,
         is_leap_year: leap,
         is_turning: false, is_yule: false,
-        is_midsummer: false, is_spiral: false, is_rest: false,
+        is_midsummer: false, is_sextant: false, is_trine: false, is_spiral: false,
+        is_convergence: false, is_meridian: false, is_mask: false, is_harmony: false,
+        is_rest: false,
         special_day: "",
+        observance: "",
     };
 
     // The Turning (days 1-3)
     if day_of_year <= 3 {
+        let special_day = TURNING_DAY_NAMES[(day_of_year - 1) as usize];
         return MetricDate {
             is_turning: true,
-            special_day: TURNING_DAY_NAMES[(day_of_year - 1) as usize],
+            special_day,
+            observance: special_day,
             ..base
         };
     }
@@ -105,9 +126,11 @@ pub fn gregorian_to_metric(year: i32, month: u32, day: u32) -> MetricDate {
     let (m, d) = if adjusted <= 270 {
         (((adjusted - 1) / 30 + 1) as u8, ((adjusted - 1) % 30 + 1) as u8)
     } else if adjusted <= 270 + yule_day_count {
+        let special_day = YULE_DAY_NAMES[(adjusted - 271) as usize];
         return MetricDate {
             is_yule: true,
-            special_day: YULE_DAY_NAMES[(adjusted - 271) as usize],
+            special_day,
+            observance: special_day,
             ..base
         };
     } else {
@@ -117,6 +140,25 @@ pub fn gregorian_to_metric(year: i32, month: u32, day: u32) -> MetricDate {
 
     let week_day = ((d - 1) % 10 + 1) as u8;
     let week = ((m as i32 - 1) * 3 + (d as i32 - 1) / 10 + 1) as u8;
+
+    let is_midsummer = m == 4 && d == 1;
+    let is_sextant = m == 2 && d == 30;
+    let is_trine = m == 4 && d == 30;
+    let is_spiral = m == 5 && d == 18;
+    let is_convergence = m == 5 && d == 24;
+    let is_meridian = m == 6 && d == 30;
+    let is_mask = m == 8 && d == 13;
+    let is_harmony = m == 8 && d == 30;
+
+    let observance = if is_midsummer { "Midsummer" }
+        else if is_sextant { "The Sextant" }
+        else if is_trine { "The Trine" }
+        else if is_spiral { "The Spiral" }
+        else if is_convergence { "Convergence" }
+        else if is_meridian { "The Meridian" }
+        else if is_mask { "The Mask" }
+        else if is_harmony { "Harmony" }
+        else { "" };
 
     MetricDate {
         year: metric_year,
@@ -130,11 +172,78 @@ pub fn gregorian_to_metric(year: i32, month: u32, day: u32) -> MetricDate {
         is_leap_year: leap,
         is_turning: false,
         is_yule: false,
-        is_midsummer: m == 4 && d == 1,
-        is_spiral: m == 5 && d == 18,
+        is_midsummer,
+        is_sextant,
+        is_trine,
+        is_spiral,
+        is_convergence,
+        is_meridian,
+        is_mask,
+        is_harmony,
         is_rest: week_day >= 8,
         special_day: "",
+        observance,
     }
+}
+
+/// Format a MetricDate using a pattern string.
+///
+/// Tokens:
+/// - `MMM`  month name (e.g. "Unil")
+/// - `MM`   month zero-padded (e.g. "01")
+/// - `M`    month number (e.g. "1")
+/// - `DD`   day zero-padded (e.g. "04")
+/// - `D`    day number (e.g. "4")
+/// - `WW`   weekday name (e.g. "Quintday")
+/// - `W`    weekday number (e.g. "5")
+/// - `Y`    year number (e.g. "56")
+/// - `S`    season name (e.g. "Rising")
+///
+/// Example: `format(&d, "WW, MMM D, Year Y")` → `"Quintday, Unil 4, Year 56"`
+pub fn format(date: &MetricDate, pattern: &str) -> String {
+    let season_name = if date.season_index >= 0 && (date.season_index as usize) < SEASON_NAMES.len() {
+        SEASON_NAMES[date.season_index as usize]
+    } else {
+        ""
+    };
+
+    let mut result = String::with_capacity(pattern.len() + 16);
+    let chars: Vec<char> = pattern.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i..].starts_with(&['M', 'M', 'M']) {
+            result.push_str(date.month_name);
+            i += 3;
+        } else if chars[i..].starts_with(&['M', 'M']) {
+            result.push_str(&format!("{:02}", date.month));
+            i += 2;
+        } else if chars[i] == 'M' {
+            result.push_str(&date.month.to_string());
+            i += 1;
+        } else if chars[i..].starts_with(&['D', 'D']) {
+            result.push_str(&format!("{:02}", date.day));
+            i += 2;
+        } else if chars[i] == 'D' {
+            result.push_str(&date.day.to_string());
+            i += 1;
+        } else if chars[i..].starts_with(&['W', 'W']) {
+            result.push_str(date.day_name);
+            i += 2;
+        } else if chars[i] == 'W' {
+            result.push_str(&date.week_day.to_string());
+            i += 1;
+        } else if chars[i] == 'Y' {
+            result.push_str(&date.year.to_string());
+            i += 1;
+        } else if chars[i] == 'S' {
+            result.push_str(season_name);
+            i += 1;
+        } else {
+            result.push(chars[i]);
+            i += 1;
+        }
+    }
+    result
 }
 
 /// Convert a Metric Calendar date back to a Gregorian date.
@@ -244,6 +353,7 @@ mod tests {
         assert_eq!(r.year, 56);
         assert!(r.is_turning);
         assert_eq!(r.special_day, "Vigil");
+        assert_eq!(r.observance, "Vigil");
     }
 
     #[test]
@@ -271,6 +381,7 @@ mod tests {
         assert_eq!(r.day_name, "Primday");
         assert!(!r.is_rest);
         assert_eq!(r.week, 1);
+        assert_eq!(r.observance, "");
     }
 
     #[test]
@@ -289,6 +400,7 @@ mod tests {
         assert_eq!(r.year, 56);
         assert!(r.is_yule);
         assert_eq!(r.special_day, "Yule Eve");
+        assert_eq!(r.observance, "Yule Eve");
     }
 
     #[test]
@@ -309,6 +421,37 @@ mod tests {
         assert!(r.is_midsummer);
         assert_eq!(r.month, 4);
         assert_eq!(r.day, 1);
+        assert_eq!(r.observance, "Midsummer");
+    }
+
+    #[test]
+    fn test_sextant() {
+        // Duil 30: offset = 3 + 30 + 29 = 62 → March 20 + 62 = May 21, 2026
+        let r = gregorian_to_metric(2026, 5, 21);
+        assert!(r.is_sextant);
+        assert_eq!(r.month, 2);
+        assert_eq!(r.day, 30);
+        assert_eq!(r.observance, "The Sextant");
+    }
+
+    #[test]
+    fn test_spiral() {
+        // Quintil 18: offset = 3 + 120 + 17 = 140 → March 20 + 140 = August 7, 2026
+        let r = gregorian_to_metric(2026, 8, 7);
+        assert!(r.is_spiral);
+        assert_eq!(r.month, 5);
+        assert_eq!(r.day, 18);
+        assert_eq!(r.observance, "The Spiral");
+    }
+
+    #[test]
+    fn test_convergence() {
+        // Quintil 24: offset = 3 + 120 + 23 = 146 → March 20 + 146 = August 13, 2026
+        let r = gregorian_to_metric(2026, 8, 13);
+        assert!(r.is_convergence);
+        assert_eq!(r.month, 5);
+        assert_eq!(r.day, 24);
+        assert_eq!(r.observance, "Convergence");
     }
 
     #[test]
@@ -347,5 +490,16 @@ mod tests {
         // so metric year 57 has 3 Yule days and Kindling exists
         let kindling = metric_to_gregorian(57, "yule", 2, 1);
         assert!(kindling.is_ok());
+    }
+
+    #[test]
+    fn test_format() {
+        // Note: tokens (Y, M, D, W, S) match anywhere in the pattern, so avoid using
+        // them in literal text. Use "yr Y" not "Year Y" (the 'Y' in "Year" would be consumed).
+        let r = gregorian_to_metric(2026, 3, 23); // Unil 1, Year 56
+        assert_eq!(format(&r, "MMM D"), "Unil 1");
+        assert_eq!(format(&r, "Y-MM-DD"), "56-01-01");
+        assert_eq!(format(&r, "WW MMM D Y"), "Primday Unil 1 56");
+        assert_eq!(format(&r, "S MMM D"), "Rising Unil 1");
     }
 }

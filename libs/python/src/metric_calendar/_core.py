@@ -1,5 +1,6 @@
 from __future__ import annotations
 import datetime
+import re
 from dataclasses import dataclass
 
 _DAY_NAMES = (
@@ -12,8 +13,12 @@ _MONTH_NAMES = (
     "Septil", "Octil", "Novil", "Decil", "Undecil", "Duodecil",
 )
 
+_SEASON_NAMES = ("Rising", "Flourishing", "Gathering", "Stillness")
+
 _TURNING_DAY_NAMES = ("Vigil", "Balance", "Dawn")
 _YULE_DAY_NAMES = ("Yule Eve", "Midwinter", "Kindling")
+
+_FORMAT_RE = re.compile(r'MMM|MM|M|DD|D|WW|W|Y|S')
 
 
 @dataclass(frozen=True)
@@ -29,10 +34,17 @@ class MetricDate:
     is_leap_year: bool
     is_turning: bool
     is_yule: bool
-    is_midsummer: bool  # month == 4 and day == 1
-    is_spiral: bool     # month == 5 and day == 18
-    is_rest: bool       # week_day >= 8
-    special_day: str    # set for Turning and Yule days
+    is_midsummer: bool   # month == 4 and day == 1
+    is_sextant: bool     # month == 2 and day == 30
+    is_trine: bool       # month == 4 and day == 30
+    is_spiral: bool      # month == 5 and day == 18
+    is_convergence: bool # month == 5 and day == 24
+    is_meridian: bool    # month == 6 and day == 30
+    is_mask: bool        # month == 8 and day == 13
+    is_harmony: bool     # month == 8 and day == 30
+    is_rest: bool        # week_day >= 8
+    special_day: str     # set for Turning and Yule days
+    observance: str      # name of observance, or "" if none
 
 
 def _is_leap_year(y: int) -> bool:
@@ -59,12 +71,15 @@ def gregorian_to_metric(date: datetime.date) -> MetricDate:
         year=metric_year, month=0, month_name="", day=0, week_day=0,
         day_name="", week=0, season_index=-1,
         is_leap_year=leap, is_turning=False, is_yule=False,
-        is_midsummer=False, is_spiral=False, is_rest=False, special_day="",
+        is_midsummer=False, is_sextant=False, is_trine=False, is_spiral=False,
+        is_convergence=False, is_meridian=False, is_mask=False, is_harmony=False,
+        is_rest=False, special_day="", observance="",
     )
 
     # The Turning (days 1-3)
     if day_of_year <= 3:
-        return MetricDate(**{**base, "is_turning": True, "special_day": _TURNING_DAY_NAMES[day_of_year - 1]})
+        special_day = _TURNING_DAY_NAMES[day_of_year - 1]
+        return MetricDate(**{**base, "is_turning": True, "special_day": special_day, "observance": special_day})
 
     adjusted = day_of_year - 3
 
@@ -72,7 +87,8 @@ def gregorian_to_metric(date: datetime.date) -> MetricDate:
         m = (adjusted - 1) // 30 + 1
         d = (adjusted - 1) % 30 + 1
     elif adjusted <= 270 + yule_day_count:
-        return MetricDate(**{**base, "is_yule": True, "special_day": _YULE_DAY_NAMES[adjusted - 271]})
+        special_day = _YULE_DAY_NAMES[adjusted - 271]
+        return MetricDate(**{**base, "is_yule": True, "special_day": special_day, "observance": special_day})
     else:
         post_yule = adjusted - 270 - yule_day_count
         m = 9 + (post_yule - 1) // 30 + 1
@@ -81,6 +97,34 @@ def gregorian_to_metric(date: datetime.date) -> MetricDate:
     week_day = (d - 1) % 10 + 1
     week = (m - 1) * 3 + (d - 1) // 10 + 1
 
+    is_midsummer = m == 4 and d == 1
+    is_sextant = m == 2 and d == 30
+    is_trine = m == 4 and d == 30
+    is_spiral = m == 5 and d == 18
+    is_convergence = m == 5 and d == 24
+    is_meridian = m == 6 and d == 30
+    is_mask = m == 8 and d == 13
+    is_harmony = m == 8 and d == 30
+
+    if is_midsummer:
+        observance = "Midsummer"
+    elif is_sextant:
+        observance = "The Sextant"
+    elif is_trine:
+        observance = "The Trine"
+    elif is_spiral:
+        observance = "The Spiral"
+    elif is_convergence:
+        observance = "Convergence"
+    elif is_meridian:
+        observance = "The Meridian"
+    elif is_mask:
+        observance = "The Mask"
+    elif is_harmony:
+        observance = "Harmony"
+    else:
+        observance = ""
+
     return MetricDate(
         year=metric_year,
         month=m, month_name=_MONTH_NAMES[m - 1],
@@ -88,11 +132,49 @@ def gregorian_to_metric(date: datetime.date) -> MetricDate:
         week=week, season_index=(m - 1) // 3,
         is_leap_year=leap,
         is_turning=False, is_yule=False,
-        is_midsummer=(m == 4 and d == 1),
-        is_spiral=(m == 5 and d == 18),
+        is_midsummer=is_midsummer,
+        is_sextant=is_sextant,
+        is_trine=is_trine,
+        is_spiral=is_spiral,
+        is_convergence=is_convergence,
+        is_meridian=is_meridian,
+        is_mask=is_mask,
+        is_harmony=is_harmony,
         is_rest=week_day >= 8,
         special_day="",
+        observance=observance,
     )
+
+
+def format(date: MetricDate, pattern: str) -> str:
+    """Format a MetricDate using a pattern string.
+
+    Tokens:
+        MMM  month name (e.g. "Unil")
+        MM   month zero-padded (e.g. "01")
+        M    month number (e.g. "1")
+        DD   day zero-padded (e.g. "04")
+        D    day number (e.g. "4")
+        WW   weekday name (e.g. "Quintday")
+        W    weekday number (e.g. "5")
+        Y    year number (e.g. "56")
+        S    season name (e.g. "Rising")
+
+    Example: format(d, "WW, MMM D, Year Y") -> "Quintday, Unil 4, Year 56"
+    """
+    season_name = _SEASON_NAMES[date.season_index] if 0 <= date.season_index <= 3 else ""
+    tokens = {
+        "MMM": date.month_name,
+        "MM": f"{date.month:02d}",
+        "M": str(date.month),
+        "DD": f"{date.day:02d}",
+        "D": str(date.day),
+        "WW": date.day_name,
+        "W": str(date.week_day),
+        "Y": str(date.year),
+        "S": season_name,
+    }
+    return _FORMAT_RE.sub(lambda m: tokens[m.group()], pattern)
 
 
 def metric_to_gregorian(

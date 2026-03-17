@@ -2,6 +2,7 @@ package metric
 
 import (
 	"fmt"
+	"regexp"
 	"time"
 )
 
@@ -15,26 +16,37 @@ var monthNames = [12]string{
 	"Septil", "Octil", "Novil", "Decil", "Undecil", "Duodecil",
 }
 
+var seasonNames = [4]string{"Rising", "Flourishing", "Gathering", "Stillness"}
+
 var turningDayNames = [3]string{"Vigil", "Balance", "Dawn"}
 var yuleDayNames = [3]string{"Yule Eve", "Midwinter", "Kindling"}
 
+var formatRe = regexp.MustCompile(`MMM|MM|M|DD|D|WW|W|Y|S`)
+
 // Date represents a date in the Metric Calendar.
 type Date struct {
-	Year        int
-	Month       int    // 1-12; 0 for Turning/Yule days
-	MonthName   string
-	Day         int    // 1-30; 0 for Turning/Yule days
-	WeekDay     int    // 1-10; 0 for Turning/Yule days
-	DayName     string
-	Week        int    // 1-36; 0 for Turning/Yule days
-	SeasonIndex int    // 0-3; -1 for Turning/Yule days
-	IsLeapYear  bool
-	IsTurning   bool
-	IsYule      bool
-	IsMidsummer bool   // true when Month==4 && Day==1
-	IsSpiral    bool   // true when Month==5 && Day==18
-	IsRest      bool   // true when WeekDay >= 8
-	SpecialDay  string // name set for Turning and Yule days
+	Year         int
+	Month        int    // 1-12; 0 for Turning/Yule days
+	MonthName    string
+	Day          int    // 1-30; 0 for Turning/Yule days
+	WeekDay      int    // 1-10; 0 for Turning/Yule days
+	DayName      string
+	Week         int    // 1-36; 0 for Turning/Yule days
+	SeasonIndex  int    // 0-3; -1 for Turning/Yule days
+	IsLeapYear   bool
+	IsTurning    bool
+	IsYule       bool
+	IsMidsummer  bool   // true when Month==4 && Day==1
+	IsSextant    bool   // true when Month==2 && Day==30
+	IsTrine      bool   // true when Month==4 && Day==30
+	IsSpiral     bool   // true when Month==5 && Day==18
+	IsConvergence bool  // true when Month==5 && Day==24
+	IsMeridian   bool   // true when Month==6 && Day==30
+	IsMask       bool   // true when Month==8 && Day==13
+	IsHarmony    bool   // true when Month==8 && Day==30
+	IsRest       bool   // true when WeekDay >= 8
+	SpecialDay   string // name set for Turning and Yule days
+	Observance   string // name of observance, or "" if none
 }
 
 // FromGregorian converts a Gregorian time.Time to a Metric Calendar Date.
@@ -66,6 +78,7 @@ func FromGregorian(t time.Time) Date {
 	if dayOfYear <= 3 {
 		result.IsTurning = true
 		result.SpecialDay = turningDayNames[dayOfYear-1]
+		result.Observance = result.SpecialDay
 		return result
 	}
 
@@ -76,6 +89,7 @@ func FromGregorian(t time.Time) Date {
 	} else if adjusted <= 270+yuleDayCount {
 		result.IsYule = true
 		result.SpecialDay = yuleDayNames[adjusted-271]
+		result.Observance = result.SpecialDay
 		return result
 	} else {
 		postYule := adjusted - 270 - yuleDayCount
@@ -86,12 +100,83 @@ func FromGregorian(t time.Time) Date {
 	result.WeekDay = (result.Day-1)%10 + 1
 	result.IsRest = result.WeekDay >= 8
 	result.IsMidsummer = result.Month == 4 && result.Day == 1
+	result.IsSextant = result.Month == 2 && result.Day == 30
+	result.IsTrine = result.Month == 4 && result.Day == 30
 	result.IsSpiral = result.Month == 5 && result.Day == 18
+	result.IsConvergence = result.Month == 5 && result.Day == 24
+	result.IsMeridian = result.Month == 6 && result.Day == 30
+	result.IsMask = result.Month == 8 && result.Day == 13
+	result.IsHarmony = result.Month == 8 && result.Day == 30
 	result.DayName = dayNames[result.WeekDay-1]
 	result.MonthName = monthNames[result.Month-1]
 	result.SeasonIndex = (result.Month - 1) / 3
 	result.Week = (result.Month-1)*3 + (result.Day-1)/10 + 1
+
+	switch {
+	case result.IsMidsummer:
+		result.Observance = "Midsummer"
+	case result.IsSextant:
+		result.Observance = "The Sextant"
+	case result.IsTrine:
+		result.Observance = "The Trine"
+	case result.IsSpiral:
+		result.Observance = "The Spiral"
+	case result.IsConvergence:
+		result.Observance = "Convergence"
+	case result.IsMeridian:
+		result.Observance = "The Meridian"
+	case result.IsMask:
+		result.Observance = "The Mask"
+	case result.IsHarmony:
+		result.Observance = "Harmony"
+	}
+
 	return result
+}
+
+// Format formats a Date using a pattern string.
+//
+// Tokens:
+//
+//	MMM  month name (e.g. "Unil")
+//	MM   month zero-padded (e.g. "01")
+//	M    month number (e.g. "1")
+//	DD   day zero-padded (e.g. "04")
+//	D    day number (e.g. "4")
+//	WW   weekday name (e.g. "Quintday")
+//	W    weekday number (e.g. "5")
+//	Y    year number (e.g. "56")
+//	S    season name (e.g. "Rising")
+//
+// Example: Format(d, "WW, MMM D, Year Y") → "Quintday, Unil 4, Year 56"
+func Format(d Date, pattern string) string {
+	seasonName := ""
+	if d.SeasonIndex >= 0 && d.SeasonIndex <= 3 {
+		seasonName = seasonNames[d.SeasonIndex]
+	}
+	return formatRe.ReplaceAllStringFunc(pattern, func(tok string) string {
+		switch tok {
+		case "MMM":
+			return d.MonthName
+		case "MM":
+			return fmt.Sprintf("%02d", d.Month)
+		case "M":
+			return fmt.Sprintf("%d", d.Month)
+		case "DD":
+			return fmt.Sprintf("%02d", d.Day)
+		case "D":
+			return fmt.Sprintf("%d", d.Day)
+		case "WW":
+			return d.DayName
+		case "W":
+			return fmt.Sprintf("%d", d.WeekDay)
+		case "Y":
+			return fmt.Sprintf("%d", d.Year)
+		case "S":
+			return seasonName
+		}
+		return tok
+	})
 }
 
 // ToGregorian converts a Metric Calendar date back to a Gregorian time.Time.

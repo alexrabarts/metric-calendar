@@ -13,8 +13,12 @@ private val MONTH_NAMES = arrayOf(
     "Septil", "Octil", "Novil", "Decil", "Undecil", "Duodecil"
 )
 
+private val SEASON_NAMES = arrayOf("Rising", "Flourishing", "Gathering", "Stillness")
+
 private val TURNING_DAY_NAMES = arrayOf("Vigil", "Balance", "Dawn")
 private val YULE_DAY_NAMES = arrayOf("Yule Eve", "Midwinter", "Kindling")
+
+private val FORMAT_RE = Regex("MMM|MM|M|DD|D|WW|W|Y|S")
 
 /**
  * A date in the Metric Calendar system.
@@ -31,9 +35,16 @@ private val YULE_DAY_NAMES = arrayOf("Yule Eve", "Midwinter", "Kindling")
  * @param isTurning true during The Turning (3 days at spring equinox)
  * @param isYule true during Yule
  * @param isMidsummer true on Quadril 1 (summer solstice)
+ * @param isSextant true on Duil 30
+ * @param isTrine true on Quadril 30
  * @param isSpiral true on Quintil 18 (golden angle day)
+ * @param isConvergence true on Quintil 24
+ * @param isMeridian true on Sextil 30
+ * @param isMask true on Octil 13
+ * @param isHarmony true on Octil 30
  * @param isRest true on days 8-10 of any 10-day week
  * @param specialDay "Vigil", "Balance", "Dawn", "Yule Eve", "Midwinter", "Kindling", or empty
+ * @param observance name of the observance, or empty string if none
  */
 data class MetricDate(
     val year: Int,
@@ -48,9 +59,16 @@ data class MetricDate(
     val isTurning: Boolean,
     val isYule: Boolean,
     val isMidsummer: Boolean,
+    val isSextant: Boolean,
+    val isTrine: Boolean,
     val isSpiral: Boolean,
+    val isConvergence: Boolean,
+    val isMeridian: Boolean,
+    val isMask: Boolean,
+    val isHarmony: Boolean,
     val isRest: Boolean,
-    val specialDay: String
+    val specialDay: String,
+    val observance: String
 )
 
 object MetricCalendar {
@@ -89,12 +107,16 @@ object MetricCalendar {
             year = metricYear, month = 0, monthName = "", day = 0, weekDay = 0,
             dayName = "", week = 0, seasonIndex = -1,
             isLeapYear = leap, isTurning = false, isYule = false,
-            isMidsummer = false, isSpiral = false, isRest = false, specialDay = ""
+            isMidsummer = false, isSextant = false, isTrine = false,
+            isSpiral = false, isConvergence = false, isMeridian = false,
+            isMask = false, isHarmony = false,
+            isRest = false, specialDay = "", observance = ""
         )
 
         // The Turning (days 1-3)
         if (dayOfYear <= 3) {
-            return base.copy(isTurning = true, specialDay = TURNING_DAY_NAMES[dayOfYear - 1])
+            val name = TURNING_DAY_NAMES[dayOfYear - 1]
+            return base.copy(isTurning = true, specialDay = name, observance = name)
         }
 
         val adjusted = dayOfYear - 3
@@ -107,7 +129,8 @@ object MetricCalendar {
                 d = (adjusted - 1) % 30 + 1
             }
             adjusted <= 270 + yuleDayCount -> {
-                return base.copy(isYule = true, specialDay = YULE_DAY_NAMES[adjusted - 271])
+                val name = YULE_DAY_NAMES[adjusted - 271]
+                return base.copy(isYule = true, specialDay = name, observance = name)
             }
             else -> {
                 val postYule = adjusted - 270 - yuleDayCount
@@ -119,6 +142,27 @@ object MetricCalendar {
         val weekDay = (d - 1) % 10 + 1
         val week = (m - 1) * 3 + (d - 1) / 10 + 1
 
+        val isMidsummer   = m == 4 && d == 1
+        val isSextant     = m == 2 && d == 30
+        val isTrine       = m == 4 && d == 30
+        val isSpiral      = m == 5 && d == 18
+        val isConvergence = m == 5 && d == 24
+        val isMeridian    = m == 6 && d == 30
+        val isMask        = m == 8 && d == 13
+        val isHarmony     = m == 8 && d == 30
+
+        val observance = when {
+            isMidsummer   -> "Midsummer"
+            isSextant     -> "The Sextant"
+            isTrine       -> "The Trine"
+            isSpiral      -> "The Spiral"
+            isConvergence -> "Convergence"
+            isMeridian    -> "The Meridian"
+            isMask        -> "The Mask"
+            isHarmony     -> "Harmony"
+            else          -> ""
+        }
+
         return MetricDate(
             year = metricYear,
             month = m, monthName = MONTH_NAMES[m - 1],
@@ -126,11 +170,52 @@ object MetricCalendar {
             week = week, seasonIndex = (m - 1) / 3,
             isLeapYear = leap,
             isTurning = false, isYule = false,
-            isMidsummer = m == 4 && d == 1,
-            isSpiral = m == 5 && d == 18,
+            isMidsummer = isMidsummer,
+            isSextant = isSextant,
+            isTrine = isTrine,
+            isSpiral = isSpiral,
+            isConvergence = isConvergence,
+            isMeridian = isMeridian,
+            isMask = isMask,
+            isHarmony = isHarmony,
             isRest = weekDay >= 8,
-            specialDay = ""
+            specialDay = "",
+            observance = observance
         )
+    }
+
+    /**
+     * Formats a MetricDate using a pattern string.
+     *
+     * Tokens:
+     * - `MMM`  month name (e.g. "Unil")
+     * - `MM`   month zero-padded (e.g. "01")
+     * - `M`    month number (e.g. "1")
+     * - `DD`   day zero-padded (e.g. "04")
+     * - `D`    day number (e.g. "4")
+     * - `WW`   weekday name (e.g. "Quintday")
+     * - `W`    weekday number (e.g. "5")
+     * - `Y`    year number (e.g. "56")
+     * - `S`    season name (e.g. "Rising")
+     *
+     * Example: `format(d, "WW, MMM D, Year Y")` → `"Quintday, Unil 4, Year 56"`
+     */
+    fun format(date: MetricDate, pattern: String): String {
+        val seasonName = if (date.seasonIndex in 0..3) SEASON_NAMES[date.seasonIndex] else ""
+        return FORMAT_RE.replace(pattern) { match ->
+            when (match.value) {
+                "MMM" -> date.monthName
+                "MM"  -> "%02d".format(date.month)
+                "M"   -> date.month.toString()
+                "DD"  -> "%02d".format(date.day)
+                "D"   -> date.day.toString()
+                "WW"  -> date.dayName
+                "W"   -> date.weekDay.toString()
+                "Y"   -> date.year.toString()
+                "S"   -> seasonName
+                else  -> match.value
+            }
+        }
     }
 
     /**

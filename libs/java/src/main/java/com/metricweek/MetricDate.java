@@ -30,17 +30,33 @@ public final class MetricDate {
     public final boolean isYule;
     /** true on Quadril 1 (summer solstice) */
     public final boolean isMidsummer;
+    /** true on Duil 30 */
+    public final boolean isSextant;
+    /** true on Quadril 30 */
+    public final boolean isTrine;
     /** true on Quintil 18 (golden angle day) */
     public final boolean isSpiral;
+    /** true on Quintil 24 */
+    public final boolean isConvergence;
+    /** true on Sextil 30 */
+    public final boolean isMeridian;
+    /** true on Octil 13 */
+    public final boolean isMask;
+    /** true on Octil 30 */
+    public final boolean isHarmony;
     /** true on days 8-10 of any 10-day week */
     public final boolean isRest;
     /** "Vigil", "Balance", "Dawn", "Yule Eve", "Midwinter", "Kindling", or empty */
     public final String specialDay;
+    /** Name of the observance, or empty string if none */
+    public final String observance;
 
     public MetricDate(int year, int month, String monthName, int day, int weekDay, String dayName,
                       int week, int seasonIndex, boolean isLeapYear, boolean isTurning,
-                      boolean isYule, boolean isMidsummer, boolean isSpiral, boolean isRest,
-                      String specialDay) {
+                      boolean isYule, boolean isMidsummer, boolean isSextant, boolean isTrine,
+                      boolean isSpiral, boolean isConvergence, boolean isMeridian,
+                      boolean isMask, boolean isHarmony, boolean isRest,
+                      String specialDay, String observance) {
         this.year = year;
         this.month = month;
         this.monthName = monthName;
@@ -53,9 +69,16 @@ public final class MetricDate {
         this.isTurning = isTurning;
         this.isYule = isYule;
         this.isMidsummer = isMidsummer;
+        this.isSextant = isSextant;
+        this.isTrine = isTrine;
         this.isSpiral = isSpiral;
+        this.isConvergence = isConvergence;
+        this.isMeridian = isMeridian;
+        this.isMask = isMask;
+        this.isHarmony = isHarmony;
         this.isRest = isRest;
         this.specialDay = specialDay;
+        this.observance = observance;
     }
 
     @Override

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metric_calendar"
-version = "1.0.0"
+version = "1.0.1"
 description = "Metric Calendar date conversion — a rational decimal calendar system"
 authors = [{name = "Alex Rabarts"}]
 license = {text = "MIT"}

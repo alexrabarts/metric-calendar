@@ -2,6 +2,8 @@ package com.metricweek;
 
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Metric Calendar date conversion utility.
@@ -23,8 +25,14 @@ public class MetricCalendar {
         "Septil", "Octil", "Novil", "Decil", "Undecil", "Duodecil"
     };
 
+    private static final String[] SEASON_NAMES = {
+        "Rising", "Flourishing", "Gathering", "Stillness"
+    };
+
     private static final String[] TURNING_DAY_NAMES = {"Vigil", "Balance", "Dawn"};
     private static final String[] YULE_DAY_NAMES = {"Yule Eve", "Midwinter", "Kindling"};
+
+    private static final Pattern FORMAT_RE = Pattern.compile("MMM|MM|M|DD|D|WW|W|Y|S");
 
     private MetricCalendar() {}
 
@@ -82,10 +90,12 @@ public class MetricCalendar {
 
         // The Turning (days 1-3)
         if (dayOfYear <= 3) {
+            String name = TURNING_DAY_NAMES[dayOfYear - 1];
             return new MetricDate(
                 metricYear, 0, "", 0, 0, "", 0, -1,
-                leap, true, false, false, false, false,
-                TURNING_DAY_NAMES[dayOfYear - 1]
+                leap, true, false,
+                false, false, false, false, false, false, false, false,
+                false, name, name
             );
         }
 
@@ -96,10 +106,12 @@ public class MetricCalendar {
             m = (adjusted - 1) / 30 + 1;
             d = (adjusted - 1) % 30 + 1;
         } else if (adjusted <= 270 + yuleDayCount) {
+            String name = YULE_DAY_NAMES[adjusted - 271];
             return new MetricDate(
                 metricYear, 0, "", 0, 0, "", 0, -1,
-                leap, false, true, false, false, false,
-                YULE_DAY_NAMES[adjusted - 271]
+                leap, false, true,
+                false, false, false, false, false, false, false, false,
+                false, name, name
             );
         } else {
             int postYule = adjusted - 270 - yuleDayCount;
@@ -110,6 +122,26 @@ public class MetricCalendar {
         int weekDay = (d - 1) % 10 + 1;
         int week = (m - 1) * 3 + (d - 1) / 10 + 1;
 
+        boolean isMidsummer   = m == 4 && d == 1;
+        boolean isSextant     = m == 2 && d == 30;
+        boolean isTrine       = m == 4 && d == 30;
+        boolean isSpiral      = m == 5 && d == 18;
+        boolean isConvergence = m == 5 && d == 24;
+        boolean isMeridian    = m == 6 && d == 30;
+        boolean isMask        = m == 8 && d == 13;
+        boolean isHarmony     = m == 8 && d == 30;
+
+        String observance;
+        if      (isMidsummer)   observance = "Midsummer";
+        else if (isSextant)     observance = "The Sextant";
+        else if (isTrine)       observance = "The Trine";
+        else if (isSpiral)      observance = "The Spiral";
+        else if (isConvergence) observance = "Convergence";
+        else if (isMeridian)    observance = "The Meridian";
+        else if (isMask)        observance = "The Mask";
+        else if (isHarmony)     observance = "Harmony";
+        else                    observance = "";
+
         return new MetricDate(
             metricYear,
             m, MONTH_NAMES[m - 1],
@@ -117,11 +149,58 @@ public class MetricCalendar {
             week, (m - 1) / 3,
             leap,
             false, false,
-            (m == 4 && d == 1),
-            (m == 5 && d == 18),
+            isMidsummer, isSextant, isTrine, isSpiral,
+            isConvergence, isMeridian, isMask, isHarmony,
             weekDay >= 8,
-            ""
+            "", observance
         );
+    }
+
+    /**
+     * Formats a MetricDate using a pattern string.
+     *
+     * <p>Tokens:
+     * <ul>
+     *   <li>{@code MMM} — month name (e.g. "Unil")</li>
+     *   <li>{@code MM}  — month zero-padded (e.g. "01")</li>
+     *   <li>{@code M}   — month number (e.g. "1")</li>
+     *   <li>{@code DD}  — day zero-padded (e.g. "04")</li>
+     *   <li>{@code D}   — day number (e.g. "4")</li>
+     *   <li>{@code WW}  — weekday name (e.g. "Quintday")</li>
+     *   <li>{@code W}   — weekday number (e.g. "5")</li>
+     *   <li>{@code Y}   — year number (e.g. "56")</li>
+     *   <li>{@code S}   — season name (e.g. "Rising")</li>
+     * </ul>
+     *
+     * <p>Example: {@code format(d, "WW, MMM D, Year Y")} → {@code "Quintday, Unil 4, Year 56"}
+     *
+     * @param date    the MetricDate to format
+     * @param pattern the pattern string
+     * @return the formatted string
+     */
+    public static String format(MetricDate date, String pattern) {
+        String seasonName = (date.seasonIndex >= 0 && date.seasonIndex <= 3)
+            ? SEASON_NAMES[date.seasonIndex] : "";
+        Matcher m = FORMAT_RE.matcher(pattern);
+        StringBuilder sb = new StringBuilder();
+        while (m.find()) {
+            String replacement;
+            switch (m.group()) {
+                case "MMM": replacement = date.monthName; break;
+                case "MM":  replacement = String.format("%02d", date.month); break;
+                case "M":   replacement = Integer.toString(date.month); break;
+                case "DD":  replacement = String.format("%02d", date.day); break;
+                case "D":   replacement = Integer.toString(date.day); break;
+                case "WW":  replacement = date.dayName; break;
+                case "W":   replacement = Integer.toString(date.weekDay); break;
+                case "Y":   replacement = Integer.toString(date.year); break;
+                case "S":   replacement = seasonName; break;
+                default:    replacement = m.group(); break;
+            }
+            m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     /**

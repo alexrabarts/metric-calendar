@@ -21,6 +21,7 @@ var MetricCalendar = (() => {
   // src/index.ts
   var index_exports = {};
   __export(index_exports, {
+    format: () => format,
     gregorianToMetric: () => gregorianToMetric,
     isRestDay: () => isRestDay,
     metricToGregorian: () => metricToGregorian,
@@ -52,8 +53,10 @@ var MetricCalendar = (() => {
     "Undecil",
     "Duodecil"
   ];
+  var SEASON_NAMES = ["Rising", "Flourishing", "Gathering", "Stillness"];
   var TURNING_DAY_NAMES = ["Vigil", "Balance", "Dawn"];
   var YULE_DAY_NAMES = ["Yule Eve", "Midwinter", "Kindling"];
+  var FORMAT_RE = /MMM|MM|M|DD|D|WW|W|Y|S/g;
   function gregorianToMetric(date) {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth() + 1;
@@ -86,12 +89,20 @@ var MetricCalendar = (() => {
       isTurning: false,
       isYule: false,
       isMidsummer: false,
+      isSextant: false,
+      isTrine: false,
       isSpiral: false,
+      isConvergence: false,
+      isMeridian: false,
+      isMask: false,
+      isHarmony: false,
       isRest: false,
-      specialDay: ""
+      specialDay: "",
+      observance: ""
     };
     if (dayOfYear <= 3) {
-      return { ...base, isTurning: true, specialDay: TURNING_DAY_NAMES[dayOfYear - 1] };
+      const specialDay = TURNING_DAY_NAMES[dayOfYear - 1];
+      return { ...base, isTurning: true, specialDay, observance: specialDay };
     }
     const adjusted = dayOfYear - 3;
     let m = 0, d = 0;
@@ -99,7 +110,8 @@ var MetricCalendar = (() => {
       m = Math.ceil(adjusted / 30);
       d = (adjusted - 1) % 30 + 1;
     } else if (adjusted <= 270 + yuleDayCount) {
-      return { ...base, isYule: true, specialDay: YULE_DAY_NAMES[adjusted - 271] };
+      const specialDay = YULE_DAY_NAMES[adjusted - 271];
+      return { ...base, isYule: true, specialDay, observance: specialDay };
     } else {
       const postYule = adjusted - 270 - yuleDayCount;
       m = 9 + Math.ceil(postYule / 30);
@@ -107,6 +119,15 @@ var MetricCalendar = (() => {
     }
     const weekDay = (d - 1) % 10 + 1;
     const week = (m - 1) * 3 + Math.floor((d - 1) / 10) + 1;
+    const isMidsummer = m === 4 && d === 1;
+    const isSextant = m === 2 && d === 30;
+    const isTrine = m === 4 && d === 30;
+    const isSpiral = m === 5 && d === 18;
+    const isConvergence = m === 5 && d === 24;
+    const isMeridian = m === 6 && d === 30;
+    const isMask = m === 8 && d === 13;
+    const isHarmony = m === 8 && d === 30;
+    const observance = isMidsummer ? "Midsummer" : isSextant ? "The Sextant" : isTrine ? "The Trine" : isSpiral ? "The Spiral" : isConvergence ? "Convergence" : isMeridian ? "The Meridian" : isMask ? "The Mask" : isHarmony ? "Harmony" : "";
     return {
       ...base,
       month: m,
@@ -117,9 +138,31 @@ var MetricCalendar = (() => {
       week,
       seasonIndex: Math.floor((m - 1) / 3),
       isRest: weekDay >= 8,
-      isMidsummer: m === 4 && d === 1,
-      isSpiral: m === 5 && d === 18
+      isMidsummer,
+      isSextant,
+      isTrine,
+      isSpiral,
+      isConvergence,
+      isMeridian,
+      isMask,
+      isHarmony,
+      observance
     };
+  }
+  function format(date, pattern) {
+    const seasonName = date.seasonIndex >= 0 ? SEASON_NAMES[date.seasonIndex] : "";
+    const tokens = {
+      "MMM": date.monthName,
+      "MM": String(date.month).padStart(2, "0"),
+      "M": String(date.month),
+      "DD": String(date.day).padStart(2, "0"),
+      "D": String(date.day),
+      "WW": date.dayName,
+      "W": String(date.weekDay),
+      "Y": String(date.year),
+      "S": seasonName
+    };
+    return pattern.replace(FORMAT_RE, (tok) => tokens[tok] ?? tok);
   }
   function metricToGregorian(year, periodType, periodValue, dayOfMonth = 1) {
     const equinoxYear = year + 1970;
