@@ -681,11 +681,19 @@
       }
     }
 
+    var OBSERVANCE_EMOJI = {
+      'The Sextant':  '\u{1F9ED}',
+      'The Trine':    '\u{1F53A}',
+      'The Spiral':   '\u{1F300}',
+      'Convergence':  '\u{1F500}',
+      'The Meridian': '\u{1F317}',
+      'The Mask':     '\u{1F3AD}',
+      'Harmony':      '\u{1F3B5}',
+    };
+
     function formatCompact(mc) {
       if (mc.isTurning || mc.isYule) return '';
-      var m = mc.month < 10 ? '0' + mc.month : '' + mc.month;
-      var d = mc.day < 10 ? '0' + mc.day : '' + mc.day;
-      return mc.year + '.' + m + '.' + d;
+      return MetricCalendar.format(mc, 'Y.MM.DD');
     }
 
 
@@ -734,13 +742,7 @@
         var tags = [];
         if (todayMetric.isRest) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>The Rest</span>');
         if (todayMetric.isMidsummer) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>' + getSolsticeLabel() + '</span>');
-        if (todayMetric.isSpiral) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F300} The Spiral</span>');
-        if (todayMetric.isSextant) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F9ED} The Sextant</span>');
-        if (todayMetric.isTrine) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F53A} The Trine</span>');
-        if (todayMetric.isConvergence) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F500} Convergence</span>');
-        if (todayMetric.isMeridian) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F317} The Meridian</span>');
-        if (todayMetric.isHarmony) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F3B5} Harmony</span>');
-        if (todayMetric.isMask) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>\u{1F3AD} The Mask</span>');
+        else if (todayMetric.observance) tags.push('<span class="inline-block text-xs px-2 py-0.5 rounded-full" ' + tagStyle + '>' + OBSERVANCE_EMOJI[todayMetric.observance] + ' ' + todayMetric.observance + '</span>');
         if (tags.length) html += '<div class="mb-2">' + tags.join(' ') + '</div>';
         html += '<div class="text-sm font-mono" style="color:' + colors.text + ';opacity:0.5">' + compact + '</div>';
         html += '</div>';
@@ -757,16 +759,20 @@
       return (day - 1) % 10 >= 7;
     }
 
+    function dayObservance(day, month) {
+      if (month.spiral === day)      return 'The Spiral';
+      if (month.sextant === day)     return 'The Sextant';
+      if (month.trine === day)       return 'The Trine';
+      if (month.convergence === day) return 'Convergence';
+      if (month.meridian === day)    return 'The Meridian';
+      if (month.harmony === day)     return 'Harmony';
+      if (month.mask === day)        return 'The Mask';
+      return '';
+    }
+
     function dayCell(day, month, monthIndex) {
       var mid = month.midsummer === day;
-      var spi = month.spiral === day;
-      var sex = month.sextant === day;
-      var tri = month.trine === day;
-      var con = month.convergence === day;
-      var mer = month.meridian === day;
-      var har = month.harmony === day;
-      var mas = month.mask === day;
-      var observance = spi || sex || tri || con || mer || har || mas;
+      var obs = dayObservance(day, month);
       var rest = isRest(day);
       var isToday = !todayMetric.isTurning && !todayMetric.isYule &&
                     todayMetric.month === monthIndex && todayMetric.day === day;
@@ -774,7 +780,7 @@
       var cls;
       if (mid) {
         cls = 'bg-[#d4a017] text-[#5c4500] font-bold';
-      } else if (observance) {
+      } else if (obs) {
         cls = 'bg-[#7c8db5] text-white font-bold';
       } else if (rest) {
         cls = 'bg-[#fdf0ee] text-[#c2685a]';
@@ -787,13 +793,7 @@
       var titles = [];
       if (isToday) titles.push('Today');
       if (mid) titles.push(getSolsticeLabel());
-      if (spi) titles.push('The Spiral');
-      if (sex) titles.push('The Sextant');
-      if (tri) titles.push('The Trine');
-      if (con) titles.push('Convergence');
-      if (mer) titles.push('The Meridian');
-      if (har) titles.push('Harmony');
-      if (mas) titles.push('The Mask');
+      if (obs) titles.push(obs);
       var titleAttr = titles.length ? ' title="' + titles.join(' \u00b7 ') + '"' : '';
 
       return '<div class="text-center text-xs sm:text-sm py-0.5 sm:py-1 rounded cursor-default ' + cls + '"' + titleAttr + ' onmouseover="_hoverDay(' + monthIndex + ',' + day + ')" onmouseout="_unhoverDay(' + monthIndex + ')">' + day + '</div>';
@@ -1011,13 +1011,7 @@
         var tags = [];
         if (mc.isRest) tags.push('<span class="bg-[#fdf0ee] text-[#c2685a] text-xs px-2 py-0.5 rounded-full">The Rest</span>');
         if (mc.isMidsummer) tags.push('<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">' + getSolsticeLabel() + '</span>');
-        if (mc.isSpiral) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F300} The Spiral</span>');
-        if (mc.isSextant) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F9ED} The Sextant</span>');
-        if (mc.isTrine) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F53A} The Trine</span>');
-        if (mc.isConvergence) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F500} Convergence</span>');
-        if (mc.isMeridian) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F317} The Meridian</span>');
-        if (mc.isHarmony) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3B5} Harmony</span>');
-        if (mc.isMask) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">\u{1F3AD} The Mask</span>');
+        else if (mc.observance) tags.push('<span class="bg-[#e0e5f0] text-[#5a6a8a] text-xs px-2 py-0.5 rounded-full">' + OBSERVANCE_EMOJI[mc.observance] + ' ' + mc.observance + '</span>');
         if (tags.length) html += '<div class="mt-2">' + tags.join(' ') + '</div>';
       }
 
